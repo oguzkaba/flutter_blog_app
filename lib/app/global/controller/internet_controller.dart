@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_blog_app/app/global/constants.dart';
+import 'package:flutter_blog_app/app/global/utils/constants.dart';
 import 'package:get/get.dart';
 
 class NetController extends GetxController {
@@ -33,6 +33,7 @@ class NetController extends GetxController {
         });
       }
     });
+    return null;
   }
 
   Future<void> initConnectivity() async {

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_blog_app/app/global/constants.dart';
+import 'package:flutter_blog_app/app/global/utils/constants.dart';
 import 'package:get/get.dart';
 
 class ButtonWidget extends StatelessWidget {
   final Widget? widget;
+  final IconData? icon;
   final String text;
   final Color? color;
   final Color? tcolor;
@@ -14,6 +15,7 @@ class ButtonWidget extends StatelessWidget {
   const ButtonWidget(
       {Key? key,
       this.widget,
+      this.icon,
       required this.text,
       this.color,
       this.onClick,
@@ -29,11 +31,11 @@ class ButtonWidget extends StatelessWidget {
       width: width ?? Get.width * .3,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
+          elevation: 0,
           shadowColor: myTrnsprntColor,
           shape: RoundedRectangleBorder(
               side: BorderSide(color: myDarkColor),
               borderRadius: BorderRadius.all(Radius.circular(14))),
-          //shadowColor: Colors.transparent,
           primary: color,
         ),
         onPressed: onClick,
@@ -42,15 +44,12 @@ class ButtonWidget extends StatelessWidget {
               children: [
                 Align(
                   alignment: Alignment.centerLeft,
-                  child: Icon(Icons.login_rounded,
-                      color: text == "Login" ? myWhiteColor : myDarkColor),
+                  child: Icon(icon, color: tcolor),
                 ),
                 Align(
                   alignment: Alignment.center,
-                  child: Text(text,
-                      style: TextStyle(
-                          color: text == "Login" ? myWhiteColor : myDarkColor,
-                          fontSize: 18)),
+                  child:
+                      Text(text, style: TextStyle(fontSize: 18, color: tcolor)),
                 ),
               ],
             ),

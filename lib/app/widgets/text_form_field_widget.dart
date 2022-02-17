@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_blog_app/app/global/constants.dart';
+import 'package:flutter_blog_app/app/global/utils/constants.dart';
+import 'package:flutter_blog_app/app/global/controller/global_controller.dart';
 import 'package:get/get.dart';
 
 class TextFormFieldWidget extends StatelessWidget {
   final String hintText;
+  final GlobalController controller;
   final IconData prefixIconData;
   final IconData? suffixIconData;
   final bool obscureText;
@@ -13,6 +15,7 @@ class TextFormFieldWidget extends StatelessWidget {
 
   TextFormFieldWidget(
       {required this.hintText,
+      required this.controller,
       required this.prefixIconData,
       this.suffixIconData,
       required this.obscureText,
@@ -30,7 +33,7 @@ class TextFormFieldWidget extends StatelessWidget {
         validator: validator,
         onChanged: onChanged,
         obscureText: obscureText,
-        cursorColor: myBlueColor,
+        cursorColor: myDarkColor,
         style: TextStyle(
           color: myDarkColor,
           // color: tc.isSavedDarkMode() ? Global.white : Global.dark_default,
@@ -41,8 +44,6 @@ class TextFormFieldWidget extends StatelessWidget {
               color: myDarkColor,
               // color: tc.isSavedDarkMode() ? Global.white : Global.dark_default,
               fontSize: 16.0),
-          focusColor: myBlueColor,
-          filled: true,
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
             borderSide: BorderSide(color: myGreyColor, width: 1.3),
@@ -63,12 +64,12 @@ class TextFormFieldWidget extends StatelessWidget {
           ),
           suffixIcon: GestureDetector(
             onTap: () {
-              //lc.isVisible = !lc.isVisible;
+              controller.isVisible = !controller.isVisible;
             },
             child: Icon(
               suffixIconData,
-              size: 20, color: myGreyColor,
-              //color: lc.isVisible ? Global.dark_default : Global.light,
+              size: 20,
+              color: controller.isVisible ? myDarkColor : myGreyColor,
             ),
           ),
         ),

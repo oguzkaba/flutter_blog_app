@@ -1,11 +1,9 @@
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class LoginController extends GetxController {
   final email = ''.obs;
   final password = ''.obs;
   final isVisible = false.obs;
-  final formKey = GlobalKey<FormState>().obs;
 
   @override
   void onInit() {

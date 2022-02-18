@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_blog_app/app/global/utils/constants.dart';
-import 'package:flutter_blog_app/app/global/controller/global_controller.dart';
 import 'package:flutter_blog_app/app/global/utils/responsive.dart';
 import 'package:flutter_blog_app/app/routes/app_pages.dart';
 import 'package:flutter_blog_app/app/widgets/elevated_button_widget.dart';
@@ -12,9 +11,9 @@ import 'package:get/get.dart';
 import '../controllers/login_controller.dart';
 
 class LoginView extends GetView<LoginController> {
+    GlobalKey<FormState> _formKeyLogin = GlobalKey<FormState>(debugLabel: "login");
   @override
   Widget build(BuildContext context) {
-    final GlobalController globalController = Get.put(GlobalController());
     final keyboardOpen = MediaQuery.of(Get.context!).viewInsets.bottom > 0;
 
     return Scaffold(
@@ -29,7 +28,7 @@ class LoginView extends GetView<LoginController> {
             _imageLogin(keyboardOpen),
             vPaddingM,
             Form(
-                key: controller.formKey.value,
+                key: _formKeyLogin,
                 child: Padding(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
@@ -88,7 +87,7 @@ class LoginView extends GetView<LoginController> {
       icon: Icons.login_rounded,
       tcolor: myWhiteColor,
       onClick: () {
-        if (controller.formKey.value.currentState!.validate()) {
+        if (_formKeyLogin.currentState!.validate()) {
           Get.toNamed(Routes.MAIN);
         } else {
           print("hata");

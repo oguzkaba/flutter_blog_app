@@ -11,9 +11,12 @@ import 'package:get/get.dart';
 import '../controllers/signup_controller.dart';
 
 class SignupView extends GetView<SignupController> {
+  GlobalKey<FormState> formKeyRegister = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
     final keyboardOpen = MediaQuery.of(Get.context!).viewInsets.bottom > 0;
+    
     return Scaffold(
         appBar: AppBar(
           title: Text('Sign Up'),
@@ -26,7 +29,7 @@ class SignupView extends GetView<SignupController> {
             _imageRegister(keyboardOpen),
             vPaddingM,
             Form(
-                key: controller.formKey.value,
+                key:formKeyRegister,
                 child: Padding(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
@@ -81,7 +84,7 @@ class SignupView extends GetView<SignupController> {
       icon: Icons.person_add_rounded,
       tcolor: myWhiteColor,
       onClick: () {
-        if (controller.formKey.value.currentState!.validate()) {
+        if (formKeyRegister.currentState!.validate()) {
           Get.toNamed(Routes.MAIN);
         } else {
           print("hata");

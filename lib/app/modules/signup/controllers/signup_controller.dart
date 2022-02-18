@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class SignupController extends GetxController {
@@ -6,7 +5,6 @@ class SignupController extends GetxController {
   final password = ''.obs;
   final passwordRetry = ''.obs;
   final isVisible = false.obs;
-  final formKey = GlobalKey<FormState>().obs;
 
   @override
   void onInit() {

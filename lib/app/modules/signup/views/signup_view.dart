@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_blog_app/app/global/controller/global_controller.dart';
 import 'package:flutter_blog_app/app/global/utils/constants.dart';
 import 'package:flutter_blog_app/app/global/utils/responsive.dart';
 import 'package:flutter_blog_app/app/routes/app_pages.dart';
@@ -14,7 +13,6 @@ import '../controllers/signup_controller.dart';
 class SignupView extends GetView<SignupController> {
   @override
   Widget build(BuildContext context) {
-    final GlobalController globalController = Get.put(GlobalController());
     final keyboardOpen = MediaQuery.of(Get.context!).viewInsets.bottom > 0;
     return Scaffold(
         appBar: AppBar(
@@ -28,20 +26,20 @@ class SignupView extends GetView<SignupController> {
             _imageRegister(keyboardOpen),
             vPaddingM,
             Form(
-                //TODO: Add key from controller
+                key: controller.formKey.value,
                 child: Padding(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
                     child: Obx(() => Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
-                              buildTextFormFieldWidgetEmail(globalController),
+                              buildTextFormFieldWidgetEmail(controller),
                               vPaddingS,
                               buildTextFormFieldWidgetPass(
-                                  "Password", globalController),
+                                  "Password", controller),
                               vPaddingS,
                               buildTextFormFieldWidgetPass(
-                                  "Re-Password", globalController),
+                                  "Re-Password", controller),
                               vPaddingM,
                               _registerButton(context),
                               vPaddingS,
@@ -74,14 +72,6 @@ class SignupView extends GetView<SignupController> {
       width: Responsive.isMobile(context) ? Get.width * .9 : Get.width * .3,
       height: Get.height * .07,
       color: myWhiteColor,
-
-      // onClick: _loginButtonPress(
-      //     dvc, lc, apic, sc, _isButtonDisabled),
-      // widget: dvc.loginLoading.value
-      //     ? LoadingWidget(color: Global.white)
-      //     : Text('Login'.tr,
-      //         style:
-      //             TextStyle(color: Global.white, fontSize: 18)),
     );
   }
 
@@ -91,7 +81,18 @@ class SignupView extends GetView<SignupController> {
       icon: Icons.person_add_rounded,
       tcolor: myWhiteColor,
       onClick: () {
-        Get.toNamed(Routes.MAIN);
+        if (controller.formKey.value.currentState!.validate()) {
+          Get.toNamed(Routes.MAIN);
+        } else {
+          print("hata");
+          //     Get.snackbar(
+          //       'Warning..!'.tr,
+          //       'User is inactive, contact your administrator'
+          //           .tr, //'Kullanıcı aktif değil....',
+          //       backgroundColor:myRedColor,
+          //       colorText: myWhiteColor);
+          // }
+        }
       },
       width: Responsive.isMobile(context) ? Get.width * .9 : Get.width * .3,
       height: Get.height * .07,
@@ -102,30 +103,38 @@ class SignupView extends GetView<SignupController> {
   }
 }
 
-TextFormFieldWidget buildTextFormFieldWidgetEmail(GlobalController gc) {
+TextFormFieldWidget buildTextFormFieldWidgetEmail(SignupController controller) {
   return TextFormFieldWidget(
-    controller: gc,
+    controller: controller,
     action: TextInputAction.next,
     hintText: 'Email'.tr,
     obscureText: false,
     prefixIconData: Icons.email,
     //suffixIconData: model.isValid ? Icons.check : null,
-    //validator: lc.validateUname,
-    //onChanged: (value) => lc.onSavedUname(value),
-    onChanged: (value) {},
+    validator: controller.validateEmail,
+    onChanged: (value) => controller.email.value = value,
   );
 }
 
 TextFormFieldWidget buildTextFormFieldWidgetPass(
-    String text, GlobalController gc) {
+    String text, SignupController controller) {
   return TextFormFieldWidget(
-    controller: gc,
-    action: text == "Re-Password" ? TextInputAction.send : TextInputAction.next,
+    controller: controller,
+    action: text == "Password" ? TextInputAction.next : TextInputAction.send,
     hintText: text,
-    obscureText: gc.isVisible ? false : true,
-    prefixIconData: Icons.lock, onChanged: (value) {},
-    suffixIconData: gc.isVisible ? Icons.visibility_off : Icons.visibility,
-    //validator: lc.validatePassword,
-    //onChanged: (value) => lc.onSavedPassword(value),
+    obscureText: controller.isVisible.value ? false : true,
+    prefixIconData: Icons.lock,
+    onChanged: (value) {
+      if (text == "Password") {
+        controller.password.value = value;
+      } else {
+        controller.passwordRetry.value = value;
+      }
+    },
+    suffixIconData:
+        controller.isVisible.value ? Icons.visibility_off : Icons.visibility,
+    validator: text == "Password"
+        ? controller.validatePassword
+        : controller.validatePasswordRetry,
   );
 }

@@ -29,16 +29,16 @@ class LoginView extends GetView<LoginController> {
             _imageLogin(keyboardOpen),
             vPaddingM,
             Form(
-                //TODO: Add key from controller
+                key: controller.formKey.value,
                 child: Padding(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
                     child: Obx(() => Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
-                              buildTextFormFieldWidgetEmail(globalController),
+                              buildTextFormFieldWidgetEmail(controller),
                               vPaddingS,
-                              buildTextFormFieldWidgetPass(globalController),
+                              buildTextFormFieldWidgetPass(controller),
                               vPaddingM,
                               _loginButton(context),
                               vPaddingS,
@@ -88,7 +88,18 @@ class LoginView extends GetView<LoginController> {
       icon: Icons.login_rounded,
       tcolor: myWhiteColor,
       onClick: () {
-        Get.toNamed(Routes.MAIN);
+        if (controller.formKey.value.currentState!.validate()) {
+          Get.toNamed(Routes.MAIN);
+        } else {
+          print("hata");
+          //     Get.snackbar(
+          //       'Warning..!'.tr,
+          //       'User is inactive, contact your administrator'
+          //           .tr, //'Kullanıcı aktif değil....',
+          //       backgroundColor:myRedColor,
+          //       colorText: myWhiteColor);
+          // }
+        }
       },
       width: Responsive.isMobile(context) ? Get.width * .9 : Get.width * .3,
       height: Get.height * .07,
@@ -104,29 +115,28 @@ class LoginView extends GetView<LoginController> {
   }
 }
 
-TextFormFieldWidget buildTextFormFieldWidgetEmail(GlobalController gc) {
+TextFormFieldWidget buildTextFormFieldWidgetEmail(LoginController controller) {
   return TextFormFieldWidget(
-    controller: gc,
+    controller: controller,
     action: TextInputAction.next,
-    hintText: 'Email'.tr,
+    hintText: 'Email',
     obscureText: false,
     prefixIconData: Icons.email,
     //suffixIconData: model.isValid ? Icons.check : null,
-    //validator: lc.validateUname,
-    //onChanged: (value) => lc.onSavedUname(value),
-    onChanged: (value) {},
+    onChanged: (value) => controller.email.value = value,
+    validator: controller.validateEmail,
   );
 }
 
-TextFormFieldWidget buildTextFormFieldWidgetPass(GlobalController gc) {
+TextFormFieldWidget buildTextFormFieldWidgetPass(LoginController controller) {
   return TextFormFieldWidget(
-    controller: gc,
-    action: TextInputAction.send,
-    hintText: 'Password'.tr,
-    obscureText: gc.isVisible ? false : true,
-    prefixIconData: Icons.lock, onChanged: (value) {},
-    suffixIconData: gc.isVisible ? Icons.visibility_off : Icons.visibility,
-    //validator: lc.validatePassword,
-    //onChanged: (value) => lc.onSavedPassword(value),
-  );
+      controller: controller,
+      action: TextInputAction.send,
+      hintText: 'Password',
+      obscureText: controller.isVisible.value ? false : true,
+      prefixIconData: Icons.lock,
+      suffixIconData:
+          controller.isVisible.value ? Icons.visibility_off : Icons.visibility,
+      validator: controller.validatePassword,
+      onChanged: (value) => controller.password.value = value);
 }

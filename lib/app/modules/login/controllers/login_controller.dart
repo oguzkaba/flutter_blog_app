@@ -1,9 +1,12 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class LoginController extends GetxController {
-  //TODO: Implement LoginController
+  final email = ''.obs;
+  final password = ''.obs;
+  final isVisible = false.obs;
+  final formKey = GlobalKey<FormState>().obs;
 
-  final count = 0.obs;
   @override
   void onInit() {
     super.onInit();
@@ -14,7 +17,23 @@ class LoginController extends GetxController {
     super.onReady();
   }
 
-  @override
-  void onClose() {}
-  void increment() => count.value++;
+  String? validateEmail(String? value) {
+    if (value!.isEmpty) {
+      return 'Please fill Email';
+    } else if (value.length < 6) {
+      return 'Email must be 6 length character';
+    } else {
+      return null;
+    }
+  }
+
+  String? validatePassword(String? value) {
+    if (value!.isEmpty) {
+      return 'Please fill password';
+    } else if (value.length < 6) {
+      return 'Password must be 6 length character';
+    } else {
+      return null;
+    }
+  }
 }

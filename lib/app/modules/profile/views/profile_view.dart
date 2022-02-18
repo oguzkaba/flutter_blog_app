@@ -26,32 +26,38 @@ class ProfileView extends GetView<ProfileController> {
           child: Column(
             children: [
               vPaddingM,
-              Stack(children: [
-                CircleAvatar(
-                  radius: 80,
-                  backgroundColor: myGreyColor,
-                ),
-                Positioned(
-                    bottom: 50,
-                    right: 20,
-                    child: IconButton(
-                        onPressed: () {},
-                        icon: Icon(Icons.camera_alt,
-                            color: myDarkColor, size: 40)))
-              ]),
-              vPaddingM,
-              Container(
-                width: Get.width * 0.9,
-                decoration: BoxDecoration(
-                color: myDarkColor,
-                borderRadius: BorderRadius.all(Radius.circular(20))),
+              Expanded(
+                child: Stack(children: [
+                  CircleAvatar(
+                    radius: 80,
+                    backgroundColor: myGreyColor,
+                  ),
+                  Positioned(
+                      bottom: 50,
+                      right: 20,
+                      child: IconButton(
+                          onPressed: () {},
+                          icon: Icon(Icons.camera_alt,
+                              color: myDarkColor, size: 40)))
+                ]),
               ),
               vPaddingM,
-              Column(children: [
-                _saveButton(context),
-                vPaddingS,
-                _logoutButton(context),
-              ])
+              Expanded(
+                child: Container(
+                  width: Get.width * 0.9,
+                  decoration: BoxDecoration(
+                      color: myDarkColor,
+                      borderRadius: BorderRadius.all(Radius.circular(20))),
+                ),
+              ),
+              vPaddingM,
+              Expanded(
+                child: Column(children: [
+                  _saveButton(context),
+                  vPaddingS,
+                  _logoutButton(context),
+                ]),
+              )
             ],
           ),
         ));

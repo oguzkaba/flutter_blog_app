@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_blog_app/app/global/utils/constants.dart';
-import 'package:flutter_blog_app/app/global/controller/global_controller.dart';
 import 'package:get/get.dart';
 
 class TextFormFieldWidget extends StatelessWidget {
   final String hintText;
-  final GlobalController controller;
+  final controller;
   final IconData prefixIconData;
   final IconData? suffixIconData;
   final bool obscureText;
@@ -64,12 +63,12 @@ class TextFormFieldWidget extends StatelessWidget {
           ),
           suffixIcon: GestureDetector(
             onTap: () {
-              controller.isVisible = !controller.isVisible;
+              controller.isVisible.value = !controller.isVisible.value;
             },
             child: Icon(
               suffixIconData,
               size: 20,
-              color: controller.isVisible ? myDarkColor : myGreyColor,
+              color: controller.isVisible.value ? myDarkColor : myGreyColor,
             ),
           ),
         ),

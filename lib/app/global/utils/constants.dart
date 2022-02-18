@@ -9,6 +9,11 @@ import 'package:flutter_blog_app/app/modules/profile/views/profile_view.dart';
 ///
 
 ///
+///Google Map Api Key
+///
+const String googleMapApiKey = "AIzaSyCbp8iDOjfwybAwyVS5d3yr8M9mm43jJkk";
+
+///
 ///Constant variables
 ///
 //Color

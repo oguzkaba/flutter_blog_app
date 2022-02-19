@@ -1,4 +1,7 @@
+// ignore_for_file: prefer_final_fields
+
 import 'package:flutter/material.dart';
+import 'package:flutter_blog_app/app/data/remote/controller/api_controller.dart';
 import 'package:flutter_blog_app/app/global/utils/constants.dart';
 import 'package:flutter_blog_app/app/global/utils/responsive.dart';
 import 'package:flutter_blog_app/app/routes/app_pages.dart';
@@ -11,11 +14,13 @@ import 'package:get/get.dart';
 import '../controllers/login_controller.dart';
 
 class LoginView extends GetView<LoginController> {
-    GlobalKey<FormState> _formKeyLogin = GlobalKey<FormState>(debugLabel: "login");
+  GlobalKey<FormState> _formKeyLogin =
+      GlobalKey<FormState>(debugLabel: "login");
+  final ApiController apiController = Get.put(ApiController());
+
   @override
   Widget build(BuildContext context) {
     final keyboardOpen = MediaQuery.of(Get.context!).viewInsets.bottom > 0;
-
     return Scaffold(
         appBar: AppBar(
           title: Text('Login'),
@@ -86,18 +91,18 @@ class LoginView extends GetView<LoginController> {
       text: "Login",
       icon: Icons.login_rounded,
       tcolor: myWhiteColor,
-      onClick: () {
+      onClick: () async {
         if (_formKeyLogin.currentState!.validate()) {
-          Get.toNamed(Routes.MAIN);
-        } else {
-          print("hata");
-          //     Get.snackbar(
-          //       'Warning..!'.tr,
-          //       'User is inactive, contact your administrator'
-          //           .tr, //'Kullanıcı aktif değil....',
-          //       backgroundColor:myRedColor,
-          //       colorText: myWhiteColor);
-          // }
+          await apiController.login(
+              controller.email.value, controller.password.value);
+          if (apiController.user.hasError == false) {
+            apiController.token.value = apiController.user.data!.token!;
+            // TODO: Get.storage
+            Get.offAndToNamed(Routes.MAIN);
+          } else {
+            Get.snackbar('Warning..!'.tr, apiController.user.message,
+                backgroundColor: myRedColor, colorText: myWhiteColor);
+          }
         }
       },
       width: Responsive.isMobile(context) ? Get.width * .9 : Get.width * .3,

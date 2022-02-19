@@ -1,41 +1,47 @@
 // To parse this JSON data, do
 //
-//     final getBlogModel = getBlogModelFromJson(jsonString);
-//url:
-//http://test020.internative.net/Blog/GetBlogs
+//     final GetBlogsModel = GetBlogsModelFromJson(jsonString);
+
 import 'dart:convert';
 
-GetBlogModel getBlogModelFromJson(String str) =>
-    GetBlogModel.fromJson(json.decode(str));
+GetBlogsModel getBlogsModelFromJson(String str) =>
+    GetBlogsModel.fromJson(json.decode(str));
 
-String getBlogModelToJson(GetBlogModel data) => json.encode(data.toJson());
+String getBlogsModelToJson(GetBlogsModel data) => json.encode(data.toJson());
 
-class GetBlogModel {
-  GetBlogModel({
+class GetBlogsModel {
+  GetBlogsModel({
     this.validationErrors,
     this.hasError,
     this.message,
-    required this.data,
+    this.data,
   });
 
   final List<dynamic>? validationErrors;
   final bool? hasError;
   final dynamic message;
-  final List<Datum> data;
+  final List<Datum>? data;
 
-  factory GetBlogModel.fromJson(Map<String, dynamic> json) => GetBlogModel(
-        validationErrors:
-            List<dynamic>.from(json["ValidationErrors"].map((x) => x)),
+  factory GetBlogsModel.fromJson(Map<String, dynamic> json) => GetBlogsModel(
+        validationErrors: json["ValidationErrors"] == null
+            ? null
+            : List<dynamic>.from(json["ValidationErrors"].map((x) => x)),
         hasError: json["HasError"],
         message: json["Message"],
-        data: List<Datum>.from(json["Data"].map((x) => Datum.fromJson(x))),
+        data: json["Data"] == null
+            ? null
+            : List<Datum>.from(json["Data"].map((x) => Datum.fromJson(x))),
       );
 
   Map<String, dynamic> toJson() => {
-        "ValidationErrors": List<dynamic>.from(validationErrors!.map((x) => x)),
+        "ValidationErrors": validationErrors == null
+            ? null
+            : List<dynamic>.from(validationErrors!.map((x) => x)),
         "HasError": hasError,
         "Message": message,
-        "Data": List<dynamic>.from(data.map((x) => x.toJson())),
+        "Data": data == null
+            ? null
+            : List<dynamic>.from(data!.map((x) => x.toJson())),
       };
 }
 

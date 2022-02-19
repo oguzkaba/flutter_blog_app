@@ -5,7 +5,16 @@ import 'package:flutter_blog_app/app/modules/home/views/home_view.dart';
 import 'package:flutter_blog_app/app/modules/profile/views/profile_view.dart';
 
 ///
+///API-Test token
+const String testToken =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySUQiOiI2MjBlMzA4ZmIwN2QxZTEzOWFmNWI0NmQiLCJuYmYiOjE2NDUyNDg4MDQsImV4cCI6MTY0Nzg0MDgwNCwiaXNzIjoiaSIsImF1ZCI6ImEifQ.crMBwQfGTFWq7JN9odQ1oDl_Y8Di2e2dJiNiCCqYZH0";
+
+///
+
+///
 ///API-End Point
+const String baseUrl = "http://test020.internative.net";
+
 ///
 
 ///

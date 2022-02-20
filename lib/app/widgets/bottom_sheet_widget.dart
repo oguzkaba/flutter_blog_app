@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_blog_app/app/data/remote/controller/api_controller.dart';
 import 'package:flutter_blog_app/app/global/utils/constants.dart';
 import 'package:flutter_blog_app/app/modules/profile/controllers/profile_controller.dart';
 import 'package:flutter_blog_app/app/widgets/elevated_button_widget.dart';
@@ -10,7 +11,7 @@ import 'package:image_picker/image_picker.dart';
 class CustomBottomSheetWidget {
   static void showBSheet(
       {required BuildContext? context,
-      //required String? text,
+      required ApiController apiController,
       required ProfileController controller}) {
     Get.bottomSheet(
         Container(
@@ -36,7 +37,7 @@ class CustomBottomSheetWidget {
                 child: _imagePreview(controller),
               ),
               vPaddingS,
-              Expanded(child: _buttonGroup(controller)),
+              Expanded(child: _buttonGroup(controller, apiController)),
               vPaddingS
             ]),
           ),
@@ -99,7 +100,8 @@ class CustomBottomSheetWidget {
         ]));
   }
 
-  static Row _buttonGroup(ProfileController controller) {
+  static Row _buttonGroup(
+      ProfileController controller, ApiController apiController) {
     return Row(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
@@ -108,8 +110,13 @@ class CustomBottomSheetWidget {
             text: "Select",
             icon: Icons.touch_app_rounded,
             tcolor: myWhiteColor,
-            onClick: () {
-              controller.isSelected.value=true;
+            onClick: () async {
+              controller.isSelected.value = true;
+              final image = controller.imageFileList!.first.path;
+              await apiController.uploadImageApi(
+                  File(controller.imageFileList!.first.path),
+                  controller.imageFileList!.first.path);
+              controller.imageFileList!.clear();
               Get.back();
             },
             width: Get.width * .425,

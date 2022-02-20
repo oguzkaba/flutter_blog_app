@@ -1,20 +1,7 @@
+import 'package:flutter_blog_app/app/data/remote/model/blog_model.dart';
 import 'package:get/get.dart';
 
 class ArticleDetailController extends GetxController {
-  //TODO: Implement ArticleDetailController
+Datum selectedArticle=Datum();
 
-  final count = 0.obs;
-  @override
-  void onInit() {
-    super.onInit();
-  }
-
-  @override
-  void onReady() {
-    super.onReady();
-  }
-
-  @override
-  void onClose() {}
-  void increment() => count.value++;
 }

@@ -1,7 +1,9 @@
 // ignore_for_file: prefer_final_fields
 
 import 'package:flutter/material.dart';
+import 'package:flutter_blog_app/app/data/local/local_storage_controller.dart';
 import 'package:flutter_blog_app/app/data/remote/controller/api_controller.dart';
+import 'package:flutter_blog_app/app/global/controller/internet_controller.dart';
 import 'package:flutter_blog_app/app/global/utils/constants.dart';
 import 'package:flutter_blog_app/app/global/utils/responsive.dart';
 import 'package:flutter_blog_app/app/routes/app_pages.dart';
@@ -16,11 +18,14 @@ import '../controllers/login_controller.dart';
 class LoginView extends GetView<LoginController> {
   GlobalKey<FormState> _formKeyLogin =
       GlobalKey<FormState>(debugLabel: "login");
+  final NetController netContoller = Get.put(NetController());
   final ApiController apiController = Get.put(ApiController());
+  final PrefController prefController=Get.put(PrefController());
 
   @override
   Widget build(BuildContext context) {
     final keyboardOpen = MediaQuery.of(Get.context!).viewInsets.bottom > 0;
+
     return Scaffold(
         appBar: AppBar(
           title: Text('Login'),
@@ -28,33 +33,33 @@ class LoginView extends GetView<LoginController> {
         ),
         body: SingleChildScrollView(
           child: Center(
-              child: Column(children: [
-            vPaddingM,
-            _imageLogin(keyboardOpen),
-            vPaddingM,
-            Form(
-                key: _formKeyLogin,
-                child: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-                    child: Obx(() => Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              buildTextFormFieldWidgetEmail(controller),
-                              vPaddingS,
-                              buildTextFormFieldWidgetPass(controller),
-                              vPaddingM,
-                              _loginButton(context),
-                              vPaddingS,
-                              _registerButton(context),
-                            ]))))
-          ])),
+              child: Obx(() => Column(children: [
+                    vPaddingM,
+                    _imageLogin(keyboardOpen),
+                    vPaddingM,
+                    Form(
+                        key: _formKeyLogin,
+                        child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 5),
+                            child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                  buildTextFormFieldWidgetEmail(controller),
+                                  vPaddingS,
+                                  buildTextFormFieldWidgetPass(controller),
+                                  vPaddingM,
+                                  _loginButton(context),
+                                  vPaddingS,
+                                  _registerButton(context),
+                                ])))
+                  ]))),
         ));
   }
 
   Visibility _imageLogin(bool keyboardOpen) {
     return Visibility(
-      visible: !keyboardOpen && GetPlatform.isMobile,
+      visible: !keyboardOpen,
       child: SvgPicture.asset(
         loginIcon,
         color: myDarkColor,
@@ -75,14 +80,6 @@ class LoginView extends GetView<LoginController> {
       width: Responsive.isMobile(context) ? Get.width * .9 : Get.width * .3,
       height: Get.height * .07,
       color: myWhiteColor,
-
-      // onClick: _loginButtonPress(
-      //     dvc, lc, apic, sc, _isButtonDisabled),
-      // widget: dvc.loginLoading.value
-      //     ? LoadingWidget(color: Global.white)
-      //     : Text('Login'.tr,
-      //         style:
-      //             TextStyle(color: Global.white, fontSize: 18)),
     );
   }
 
@@ -92,29 +89,32 @@ class LoginView extends GetView<LoginController> {
       icon: Icons.login_rounded,
       tcolor: myWhiteColor,
       onClick: () async {
-        if (_formKeyLogin.currentState!.validate()) {
+        if (_formKeyLogin.currentState!.validate() ) {
           await apiController.login(
               controller.email.value, controller.password.value);
           if (apiController.user.hasError == false) {
-            apiController.token.value = apiController.user.data!.token!;
-            // TODO: Get.storage
+            prefController.token.value=apiController.user.data!.token!;
+            prefController.isLogin.value=true;
+            if (apiController.account.data!.image!=null &&apiController.account.data!.image!="string" ) {
+              prefController.image.value=apiController.account.data!.image;
+            
+            }
+            prefController.saveToPrefs();
             Get.offAndToNamed(Routes.MAIN);
           } else {
-            Get.snackbar('Warning..!'.tr, apiController.user.message,
-                backgroundColor: myRedColor, colorText: myWhiteColor);
+            Get.snackbar(
+                'Warning..!',
+                apiController.user.validationErrors!.isEmpty
+                    ? "${apiController.user.message}."
+                    : "${apiController.user.validationErrors!.first["Value"] ?? ""}. ${apiController.user.message}.",
+                backgroundColor: myRedColor,
+                colorText: myWhiteColor);
           }
         }
       },
-      width: Responsive.isMobile(context) ? Get.width * .9 : Get.width * .3,
+      width:Responsive.isMobile(context) ? Get.width * .9 : Get.width * .3,
       height: Get.height * .07,
       color: myDarkColor,
-      // onClick: _loginButtonPress(
-      //     dvc, lc, apic, sc, _isButtonDisabled),
-      // widget: dvc.loginLoading.value
-      //     ? LoadingWidget(color: Global.white)
-      //     : Text('Login'.tr,
-      //         style:
-      //             TextStyle(color: Global.white, fontSize: 18)),
     );
   }
 }

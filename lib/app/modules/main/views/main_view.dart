@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_blog_app/app/data/remote/controller/api_controller.dart';
+import 'package:flutter_blog_app/app/global/controller/internet_controller.dart';
 import 'package:flutter_blog_app/app/global/utils/constants.dart';
+import 'package:flutter_blog_app/app/widgets/nav_badge_icon_widget.dart';
 import 'package:get/get.dart';
 import '../controllers/main_controller.dart';
 
 class MainView extends GetView<MainController> {
   @override
   Widget build(BuildContext context) {
+    final NetController netContoller = Get.put(NetController());
+    final ApiController apiController = Get.put(ApiController());
+
     if (controller.pController.hasClients) {
       controller.onClose();
       controller.onInit();
@@ -25,14 +31,19 @@ class MainView extends GetView<MainController> {
                 ],
               ),
               child: BottomNavigationBar(
+                type: BottomNavigationBarType.fixed,
                 onTap: (value) => controller.pageindex(value),
                 currentIndex: controller.pIndex.value,
                 iconSize: 40,
                 showSelectedLabels: false,
                 showUnselectedLabels: false,
-                items: const <BottomNavigationBarItem>[
+                items: [
                   BottomNavigationBarItem(
-                      icon: Icon(Icons.favorite), label: "Favorite"),
+                      icon: NavBadgeIcon(
+                        iconData: Icons.favorite,
+                        notificationCount:apiController.favoriteBlogList.length,
+                      ),
+                      label: "Favorite"),
                   BottomNavigationBarItem(
                       icon: Icon(Icons.home), label: "Home"),
                   BottomNavigationBarItem(

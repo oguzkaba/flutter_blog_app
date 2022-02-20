@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_blog_app/app/data/remote/controller/api_controller.dart';
 import 'package:flutter_blog_app/app/global/utils/constants.dart';
+import 'package:flutter_blog_app/app/modules/article_detail/controllers/article_detail_controller.dart';
 import 'package:flutter_blog_app/app/modules/main/controllers/main_controller.dart';
 import 'package:get/get.dart';
 import '../controllers/home_controller.dart';
 
 class HomeView extends GetView<HomeController> {
   final ApiController apiController = Get.put(ApiController());
+  final ArticleDetailController artDetController =
+      Get.put(ArticleDetailController());
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.search_rounded, color: myDarkColor, size: 28),
+          icon: Icon(Icons.accessibility_new_sharp, color: myDarkColor, size: 28),
           onPressed: () {},
         ),
         title: Text('Home'),
@@ -41,7 +44,9 @@ class HomeView extends GetView<HomeController> {
             ),
             Expanded(
               flex: 4,
-              child: Obx(() => _blogArticlesGridView()),
+              child: Obx(() => apiController.isGetBlogsLoading.value
+                  ? Center(child: CircularProgressIndicator(color: myDarkColor))
+                  : _blogArticlesGridView()),
             ),
           ],
         ),
@@ -53,9 +58,11 @@ class HomeView extends GetView<HomeController> {
     return GridView.count(
         crossAxisCount: 2,
         shrinkWrap: true,
-        children: List.generate(controller.blogsItem.length, (index) {
+        children: List.generate(apiController.blogsItem.length, (index) {
           return GestureDetector(
             onTap: () {
+              artDetController.selectedArticle =
+                  apiController.blogsItem[index];
               Get.find<MainController>().pController.jumpToPage(3);
             },
             child: Card(
@@ -66,7 +73,7 @@ class HomeView extends GetView<HomeController> {
               ),
               child: Stack(fit: StackFit.passthrough, children: [
                 Image.network(
-                  controller.blogsItem[index].image,
+                  apiController.blogsItem[index].image,
                   fit: BoxFit.cover,
                 ),
                 Positioned(
@@ -77,41 +84,45 @@ class HomeView extends GetView<HomeController> {
                       width: 200,
                       color: myWhiteColor.withOpacity(0.7),
                       padding: const EdgeInsets.only(left: 18.0, top: 5.0),
-                      child: Text(controller.blogsItem[index].title,
+                      child: Text(apiController.blogsItem[index].title,
                           style: TextStyle(
                               fontWeight: FontWeight.w400,
                               color: myDarkColor))),
                 ),
-                Positioned(
-                  top: 0,
-                  right: 0,
-                  child: Obx(() => IconButton(
-                      onPressed: () async {
-                        await apiController
-                            .toggleFav(controller.blogsItem[index].id);
-                      },
-                      icon: Icon(Icons.favorite,
-                          color: controller.indexFav.contains(index)
-                              ? myRedColor
-                              : myWhiteColor,
-                          size: 30))),
-                )
+                _favButton(index)
               ]),
             ),
           );
         }));
   }
 
+  Widget _favButton(int index) {
+    return Positioned(
+      top: 0,
+      right: 0,
+      child: IconButton(
+          onPressed: () async {
+            await apiController.toggleFav(apiController.blogsItem[index].id);
+          },
+          icon: Icon(Icons.favorite,
+              color: apiController.accountItem
+                      .contains(apiController.blogsItem[index].id)
+                  ? myRedColor
+                  : myWhiteColor,
+              size: 30)),
+    );
+  }
+
   ListView _categoriesListView() {
     return ListView.builder(
       shrinkWrap: true,
       scrollDirection: Axis.horizontal,
-      itemCount: controller.categoriesItem.length,
+      itemCount: apiController.categoriesItem.length,
       itemBuilder: (BuildContext context, int index) => GestureDetector(
         onTap: () => apiController
-            .getBlogs(controller.categoriesItem[index].id)
+            .getBlogs(apiController.categoriesItem[index].id)
             .then((value) =>
-                controller.blogsItem.value = apiController.blogs.data!),
+                apiController.blogsItem.value = apiController.blogs.data!),
         child: SizedBox(
           width: Get.width * .42,
           child: Column(
@@ -127,14 +138,16 @@ class HomeView extends GetView<HomeController> {
                     borderRadius: BorderRadius.circular(15.0),
                   ),
                   elevation: 5,
-                  child: Image.network(controller.categoriesItem[index].image,
-                      fit: BoxFit.cover, width: Get.width * .42),
+                  child: Image.network(
+                      apiController.categoriesItem[index].image,
+                      fit: BoxFit.cover,
+                      width: Get.width * .42),
                 ),
               ),
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.only(left: 8.0),
-                  child: Text(controller.categoriesItem[index].title!,
+                  child: Text(apiController.categoriesItem[index].title!,
                       textAlign: TextAlign.center,
                       overflow: TextOverflow.ellipsis),
                 ),

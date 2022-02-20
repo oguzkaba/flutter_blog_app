@@ -1,3 +1,4 @@
+import 'package:flutter_blog_app/app/data/remote/model/login_model.dart';
 import 'package:get/get.dart';
 
 class LoginController extends GetxController {
@@ -7,6 +8,13 @@ class LoginController extends GetxController {
 
   @override
   void onInit() {
+    //TODO: Net Control
+    //if (!netContoller.isOnline) {
+    // if (localDBController.questionsData.isEmpty) {
+    // } else {
+    //   localDBController.getData();
+    // }
+    // } else {}
     super.onInit();
   }
 

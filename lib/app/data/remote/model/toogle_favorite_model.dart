@@ -21,7 +21,7 @@ class ToggleFavoriteModel {
   final List<ValidationError>? validationErrors;
   final bool? hasError;
   final String? message;
-  final List<dynamic>? data;
+  final bool? data;
 
   factory ToggleFavoriteModel.fromJson(Map<String, dynamic> json) =>
       ToggleFavoriteModel(
@@ -31,9 +31,7 @@ class ToggleFavoriteModel {
                 .map((x) => ValidationError.fromJson(x))),
         hasError: json["HasError"],
         message: json["Message"],
-        data: json["Data"] == null
-            ? null
-            : List<dynamic>.from(json["Data"].map((x) => x)),
+        data: json["Data"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -42,7 +40,7 @@ class ToggleFavoriteModel {
             : List<dynamic>.from(validationErrors!.map((x) => x.toJson())),
         "HasError": hasError,
         "Message": message,
-        "Data": data == null ? null : List<dynamic>.from(data!.map((x) => x)),
+        "Data": data,
       };
 }
 

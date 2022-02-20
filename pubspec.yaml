@@ -10,14 +10,12 @@ dependencies:
   get: 4.6.1
   connectivity_plus: ^2.2.1
   flutter_svg: ^1.0.3
-  flutter_markdown: ^0.6.9
-  html_unescape: ^2.0.0
   get_storage: ^2.0.3
   google_maps_flutter: ^2.1.1
   geolocator: ^8.2.0
   image_picker: ^0.8.4+9
   http: ^0.13.4
-
+  flutter_widget_from_html_core: ^0.8.5+1
 
   flutter: 
     sdk: flutter

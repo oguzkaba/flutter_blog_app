@@ -6,16 +6,6 @@ class SignupController extends GetxController {
   final passwordRetry = ''.obs;
   final isVisible = false.obs;
 
-  @override
-  void onInit() {
-    super.onInit();
-  }
-
-  @override
-  void onReady() {
-    super.onReady();
-  }
-
   String? validateEmail(String? value) {
     if (value!.isEmpty) {
       return 'Please fill Email';
@@ -41,7 +31,9 @@ class SignupController extends GetxController {
       return 'Please fill password retry';
     } else if (value.length < 6) {
       return 'Password retry must be 6 length character';
-    } else {
+    } else if(value=="not equal"){
+      return "Passwords are not equal";
+    }else {
       return null;
     }
   }

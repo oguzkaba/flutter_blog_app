@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_blog_app/app/data/local/local_storage_controller.dart';
+import 'package:flutter_blog_app/app/data/remote/controller/api_controller.dart';
+import 'package:flutter_blog_app/app/global/controller/internet_controller.dart';
 import 'package:flutter_blog_app/app/global/utils/constants.dart';
 import 'package:flutter_blog_app/app/global/utils/responsive.dart';
 import 'package:flutter_blog_app/app/routes/app_pages.dart';
@@ -11,12 +14,15 @@ import 'package:get/get.dart';
 import '../controllers/signup_controller.dart';
 
 class SignupView extends GetView<SignupController> {
-  GlobalKey<FormState> formKeyRegister = GlobalKey<FormState>();
+  GlobalKey<FormState> _formKeyRegister = GlobalKey<FormState>();
+  final NetController netContoller = Get.put(NetController());
+  final ApiController apiController = Get.put(ApiController());
+  final PrefController prefController=Get.put(PrefController());
 
   @override
   Widget build(BuildContext context) {
     final keyboardOpen = MediaQuery.of(Get.context!).viewInsets.bottom > 0;
-    
+
     return Scaffold(
         appBar: AppBar(
           title: Text('Sign Up'),
@@ -29,7 +35,7 @@ class SignupView extends GetView<SignupController> {
             _imageRegister(keyboardOpen),
             vPaddingM,
             Form(
-                key:formKeyRegister,
+                key: _formKeyRegister,
                 child: Padding(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
@@ -83,18 +89,29 @@ class SignupView extends GetView<SignupController> {
       text: "Register",
       icon: Icons.person_add_rounded,
       tcolor: myWhiteColor,
-      onClick: () {
-        if (formKeyRegister.currentState!.validate()) {
-          Get.toNamed(Routes.MAIN);
-        } else {
-          print("hata");
-          //     Get.snackbar(
-          //       'Warning..!'.tr,
-          //       'User is inactive, contact your administrator'
-          //           .tr, //'Kullanıcı aktif değil....',
-          //       backgroundColor:myRedColor,
-          //       colorText: myWhiteColor);
-          // }
+      onClick: () async {
+        if (_formKeyRegister.currentState!.validate()) {
+          await apiController.signUp(controller.email.value,
+              controller.password.value, controller.passwordRetry.value);
+          if (apiController.user.hasError == false &&
+              controller.password.value == controller.passwordRetry.value) {
+            apiController.token.value = apiController.user.data!.token!;
+            prefController.token.value=apiController.user.data!.token!;
+            prefController.isLogin.value=true;
+            prefController.saveToPrefs();
+            Get.offAndToNamed(Routes.MAIN);
+          // } else if (controller.password.value !=
+          //     controller.passwordRetry.value) {
+          //   controller.validatePasswordRetry("not equal");
+          } else {
+            Get.snackbar(
+                'Warning..!',
+                apiController.user.validationErrors!.isEmpty
+                    ? "${apiController.user.message}."
+                    : "${apiController.user.validationErrors!.first["Value"] ?? ""}. ${apiController.user.message}.",
+                backgroundColor: myRedColor,
+                colorText: myWhiteColor);
+          }
         }
       },
       width: Responsive.isMobile(context) ? Get.width * .9 : Get.width * .3,

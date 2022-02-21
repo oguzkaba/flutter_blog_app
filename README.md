@@ -9,7 +9,7 @@
  
  <img src="assets\ss\ss7.png" width=30%> <img src="assets\ss\ss8.png" width=30%> <img src="assets\ss\ss9.png" width=30%>
  
- <img src="assets\ss\ss10.png" width=30%> <img src="assets\ss\ss11.png" width=30%> <img src="assets\ss\ss12.png" width=30%>
+ <img src="assets\ss\ss10.png" width=30%> <img src="assets\ss\ss11.png" width=30%> 
 
 ## Dependencies
 

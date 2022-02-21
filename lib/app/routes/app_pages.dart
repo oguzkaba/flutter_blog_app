@@ -1,3 +1,5 @@
+// ignore_for_file: constant_identifier_names
+
 import 'package:get/get.dart';
 
 import 'package:flutter_blog_app/app/modules/article_detail/bindings/article_detail_binding.dart';

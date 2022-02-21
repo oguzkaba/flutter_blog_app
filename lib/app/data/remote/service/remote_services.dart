@@ -12,7 +12,6 @@ import 'package:flutter_blog_app/app/data/remote/model/upload_image_model.dart';
 import 'package:flutter_blog_app/app/global/utils/constants.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
-import 'package:image_picker/image_picker.dart';
 
 class RemoteServices {
   ///Login
@@ -52,12 +51,12 @@ class RemoteServices {
   }
 
   ///Get Categories
-  static Future<GetCategoriesModel> getCategories() async {
+  static Future<GetCategoriesModel> getCategories(String token) async {
     final response =
         await http.get(Uri.parse(baseUrl + '/Blog/GetCategories'), headers: {
       "Content-Type": "application/json",
       "accept": "*/*",
-      "Authorization": "Bearer $testToken"
+      "Authorization": "Bearer $token"
     });
 
     if (response.statusCode == 200) {
@@ -68,7 +67,7 @@ class RemoteServices {
   }
 
   ///Get Blogs
-  static Future<GetBlogsModel> getBlogs(String id) async {
+  static Future<GetBlogsModel> getBlogs(String id,String token) async {
     Map data = {
       'CategoryId': id,
     };
@@ -76,7 +75,7 @@ class RemoteServices {
         headers: {
           "Content-Type": "application/json",
           "accept": "*/*",
-          "Authorization": "Bearer $testToken"
+          "Authorization": "Bearer $token"
         },
         body: jsonEncode(data));
 
@@ -88,7 +87,7 @@ class RemoteServices {
   }
 
   ///Toogle Favorites
-  static Future<ToggleFavoriteModel> toggleFavorites(String id) async {
+  static Future<ToggleFavoriteModel> toggleFavorites(String id,String token) async {
     Map data = {
       'Id': id,
     };
@@ -97,7 +96,7 @@ class RemoteServices {
             headers: {
               "Content-Type": "application/json",
               "accept": "*/*",
-              "Authorization": "Bearer $testToken"
+              "Authorization": "Bearer $token"
             },
             body: jsonEncode(data));
     if (response.statusCode == 200) {
@@ -108,12 +107,12 @@ class RemoteServices {
   }
 
   ///Get Account
-  static Future<AccountModel> getAccounts() async {
+  static Future<AccountModel> getAccounts(String token) async {
     final response =
         await http.get(Uri.parse(baseUrl + '/Account/Get'), headers: {
       "Content-Type": "application/json",
       "accept": "*/*",
-      "Authorization": "Bearer $testToken"
+      "Authorization": "Bearer $token"
     });
     if (response.statusCode == 200) {
       return accountModelFromJson(response.body);
@@ -124,16 +123,16 @@ class RemoteServices {
 
   ///Update Account
   static Future<AccountUpdateModel> updateAccounts(
-      String? image, String? lng, String? ltd) async {
+      String? image, String? lng, String? ltd,String token) async {
     Map data = {
-      "Image": image,
+      "Image": image??"string",
       "Location": {"Longtitude": lng, "Latitude": ltd}
     };
     final response = await http.post(Uri.parse(baseUrl + '/Account/Update'),
         headers: {
           "Content-Type": "application/json",
           "accept": "*/*",
-          "Authorization": "Bearer $testToken"
+          "Authorization": "Bearer $token"
         },
         body: jsonEncode(data));
     if (response.statusCode == 200) {
@@ -145,13 +144,13 @@ class RemoteServices {
 
   ///Upload Image
   static Future<UploadImageModel> uploadImage(
-      File file, String filename) async {
+      File file, String filename,String token) async {
     var request = http.MultipartRequest(
       'POST',
       Uri.parse(baseUrl + '/General/UploadImage'),
     );
     Map<String, String> headers = {
-      "Authorization": "Bearer $testToken",
+      "Authorization": "Bearer $token",
       "Content-type": "multipart/form-data"
     };
     request.files.add(
@@ -172,7 +171,10 @@ class RemoteServices {
     }
     if (response.statusCode == 200) {
       return uploadImageModelFromJson(data!);
-    } else {
+    }else if(response.statusCode ==413){
+      throw ("Yüksek yükleme boyutu: ${response.statusCode}");
+    }
+     else {
       throw ("İstek durumu başarısız oldu: ${response.statusCode}");
     }
   }

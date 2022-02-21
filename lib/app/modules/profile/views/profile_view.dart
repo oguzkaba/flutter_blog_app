@@ -22,41 +22,64 @@ class ProfileView extends GetView<ProfileController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          leading: IconButton(
-            icon:
-                Icon(Icons.chevron_left_rounded, color: myDarkColor, size: 35),
-            onPressed: () => Get.find<MainController>().pageindex(1),
+    return WillPopScope(
+      onWillPop: () async {
+        Get.find<MainController>().pageindex(1);
+        return false;
+      },
+      child: Scaffold(
+          appBar: AppBar(
+            leading: IconButton(
+              icon: Icon(Icons.chevron_left_rounded,
+                  color: myDarkColor, size: 35),
+              onPressed: () => Get.find<MainController>().pageindex(1),
+            ),
+            title: Text('My Profile'),
+            centerTitle: true,
           ),
-          title: Text('My Profile'),
-          centerTitle: true,
-        ),
-        body: Center(
-          child: Column(
-            children: [
-              vPaddingM,
-              Expanded(
-                child: _profileCircleImage(),
-              ),
-              vPaddingM,
-              Expanded(
-                //TODO: ShowMap extract method
-                child: Container(
-                  width: Get.width * 0.9,
-                  decoration: BoxDecoration(
-                      color: myRedColor,
-                      borderRadius: BorderRadius.all(Radius.circular(20))),
-                  child: GoogleMap(initialCameraPosition:controller.currentLatLng!),
+          body: Center(
+            child: Column(
+              children: [
+                vPaddingM,
+                Expanded(
+                  child: Obx(() => _profileCircleImage()),
                 ),
-              ),
-              vPaddingM,
-              Expanded(
-                child: _buttonColumn(context),
-              )
-            ],
-          ),
-        ));
+                vPaddingM,
+                Expanded(
+                  child: Obx(() => _showMap()),
+                ),
+                vPaddingM,
+                Expanded(
+                  child: _buttonColumn(context),
+                )
+              ],
+            ),
+          )),
+    );
+  }
+
+  Container _showMap() {
+    return Container(
+        width: Get.width * 0.9,
+        decoration: BoxDecoration(
+            color: myWhiteColor,
+            borderRadius: BorderRadius.all(Radius.circular(20))),
+        child: controller.isLoadingFinish.value
+            ? GoogleMap(
+                //onLongPress:(longPressValue)=>controller.longPress(longPressValue) ,
+                myLocationButtonEnabled: true,
+                myLocationEnabled: true,
+                onMapCreated: (mapController) {
+                  // if (controller.dragMarkerPosition.value) {
+                  //   mapController.animateCamera(CameraUpdate.newCameraPosition(
+                  //       controller.currentLatLng!));
+                  // }
+                },
+                onCameraMove: ((position) =>
+                    controller.currentLatLng = position),
+                markers: Set<Marker>.of(controller.markers),
+                initialCameraPosition: controller.currentLatLng!)
+            : Center(child: CircularProgressIndicator()));
   }
 
   Column _buttonColumn(BuildContext context) {
@@ -68,25 +91,39 @@ class ProfileView extends GetView<ProfileController> {
   }
 
   Widget _profileCircleImage() {
-    return Obx(() => Stack(children: [
-          ClipOval(
-              child: apiController.uploadImage.data != null &&
+    return Stack(children: [
+      ClipOval(
+          child: controller.isLoadingFinish.value == false
+              ? Center(child: CircularProgressIndicator(color: myDarkColor))
+              : apiController.uploadImage.data != null &&
                       apiController.isUploadImageLoading.value == false
-                  ? Image.network(apiController.uploadImage.data.toString(),
-                      width: 180, height: 180, fit: BoxFit.cover)
-                  : Container(width: 180, height: 180, color: myGreyColor)),
-          Positioned(
-              bottom: 40,
-              right: 20,
-              child: IconButton(
-                  onPressed: () {
-                    CustomBottomSheetWidget.showBSheet(
-                        context: Get.context,
-                        controller: controller,
-                        apiController: apiController);
-                  },
-                  icon: Icon(Icons.camera_alt, color: myDarkColor, size: 40)))
-        ]));
+                  ? Image.network(apiController.uploadImage.data!,
+                      width: Get.height * .27,
+                      height: Get.height * .27,
+                      fit: BoxFit.cover)
+                  : (apiController.account.data!.image != null &&
+                          apiController.account.data!.image != "string" &&
+                          apiController.account.data!.image != "")
+                      ? Image.network(apiController.account.data!.image,
+                          width: Get.height * .27,
+                          height: Get.height * .27,
+                          fit: BoxFit.cover)
+                      : Container(
+                          width: Get.height * .27,
+                          height: Get.height * .27,
+                          color: myGreyColor)),
+      Positioned(
+          bottom: Get.height * .07,
+          right: Get.width * .03,
+          child: IconButton(
+              onPressed: () {
+                CustomBottomSheetWidget.showBSheet(
+                    context: Get.context,
+                    controller: controller,
+                    apiController: apiController);
+              },
+              icon: Icon(Icons.camera_alt, color: myDarkColor, size: 40)))
+    ]);
   }
 
   ButtonWidget _logoutButton(BuildContext context) {
@@ -94,9 +131,43 @@ class ProfileView extends GetView<ProfileController> {
       text: "Log Out",
       icon: Icons.logout,
       tcolor: myWhiteColor,
-      onClick: () {
-        prefController.deleteFromPrefs();
-        Get.offAllNamed(Routes.LOGIN);
+      onClick: () async {
+        Get.dialog(AlertDialog(
+          title: Text("Will be logged out?",
+              textAlign: TextAlign.center,
+              style: TextStyle(color: myDarkColor)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              vPaddingL,
+              ButtonWidget(
+                text: "Logout",
+                icon: Icons.logout_rounded,
+                tcolor: myWhiteColor,
+                onClick: () async {
+                  //apiController.logout.value = true;
+                  apiController.onClose();
+                  prefController.deleteFromPrefs();
+                  Get.offAllNamed(Routes.LOGIN);
+                },
+                width: Get.width * .7,
+                height: Get.height * .07,
+                color: myDarkColor,
+              ),
+              vPaddingS,
+              ButtonWidget(
+                text: "Cancel",
+                icon: Icons.cancel_rounded,
+                tcolor: myDarkColor,
+                onClick: () => Get.back(),
+                width: Get.width * .7,
+                height: Get.height * .07,
+                color: myWhiteColor,
+              )
+            ],
+          ),
+        ));
       },
       width: Get.width * .9,
       height: Get.height * .07,
@@ -110,9 +181,33 @@ class ProfileView extends GetView<ProfileController> {
       icon: Icons.library_add_check_rounded,
       tcolor: myDarkColor,
       onClick: () async {
-        //TODO: account update with image and map
-        //Get.find<MainController>().pageindex(1);
-        //Get.toNamed(Routes.MAIN);
+        if (apiController.account.data != null) {
+          await apiController
+              .updateAccount(apiController.uploadImage.data,
+                  controller.longObs.value, controller.latObs.value)
+              .whenComplete(() => Get.dialog(AlertDialog(
+                    title: Text("Başarılı..!",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: myRedColor)),
+                    content: Container(
+                        width: Get.width * .5,
+                        //height: Get.height * .1,
+                        child: Text("Bilgileriniz güncellenmiştir.",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(color: myDarkColor))),
+                    actions: [
+                      Center(
+                          child: ButtonWidget(
+                              icon: Icons.check_circle,
+                              tcolor: myWhiteColor,
+                              width: Get.width * .3,
+                              height: Get.height * .05,
+                              color: myDarkColor,
+                              text: "Tamam",
+                              onClick: () => Get.back()))
+                    ],
+                  )));
+        }
       },
       width: Get.width * .9,
       height: Get.height * .07,

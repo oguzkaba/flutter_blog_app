@@ -12,23 +12,31 @@ class FavoritesView extends GetView<FavoritesController> {
   getInit() {
     apiController.getAccount();
   }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.chevron_left_rounded, color: myDarkColor, size: 35),
-          onPressed: () => Get.find<MainController>().pageindex(1),
+    return WillPopScope(
+      onWillPop: () async {
+        Get.find<MainController>().pageindex(1);
+        return false;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            icon:
+                Icon(Icons.chevron_left_rounded, color: myDarkColor, size: 35),
+            onPressed: () => Get.find<MainController>().pageindex(1),
+          ),
+          title: Text('My Favorites'),
+          centerTitle: true,
         ),
-        title: Text('My Favorites'),
-        centerTitle: true,
+        body: Obx(() => apiController.favoriteBlogList.isEmpty
+            ? Center(
+                child: Text("Favori Alanınız Boş",
+                    style: TextStyle(fontSize: 30, color: myDarkColor)))
+            : apiController.isGetAccountLoading.value
+                ? Center(child: CircularProgressIndicator(color: myDarkColor))
+                : _blogArticlesGridView()),
       ),
-      body: Obx(() => apiController.favoriteBlogList.isEmpty
-          ? Container(child: Text("Boş"))
-          : apiController.isGetAccountLoading.value
-              ? Center(child: CircularProgressIndicator(color: myDarkColor))
-              : _blogArticlesGridView()),
     );
   }
 
@@ -66,15 +74,15 @@ class FavoritesView extends GetView<FavoritesController> {
                               color: myDarkColor))),
                 ),
                 Positioned(
-                  top: 0,
-                  right: 0,
-                  child: IconButton(
-                      onPressed: () async {
-                        await apiController
-                            .toggleFav(apiController.favoriteBlogList[index].id);
-                      },
-                      icon: Icon(Icons.favorite, color: myRedColor, size: 30))),
-                
+                    top: 0,
+                    right: 0,
+                    child: IconButton(
+                        onPressed: () async {
+                          await apiController.toggleFav(
+                              apiController.favoriteBlogList[index].id);
+                        },
+                        icon:
+                            Icon(Icons.favorite, color: myRedColor, size: 30))),
               ]),
             ),
           );

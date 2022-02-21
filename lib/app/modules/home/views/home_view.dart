@@ -16,7 +16,8 @@ class HomeView extends GetView<HomeController> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.accessibility_new_sharp, color: myDarkColor, size: 28),
+          icon:
+              Icon(Icons.accessibility_new_sharp, color: myDarkColor, size: 28),
           onPressed: () {},
         ),
         title: Text('Home'),
@@ -30,7 +31,9 @@ class HomeView extends GetView<HomeController> {
             vPaddingS,
             Expanded(
               flex: 1,
-              child: Obx(() => _categoriesListView()),
+              child: Obx(() => apiController.isGetCatLoading.value
+                  ? Center(child: CircularProgressIndicator(color: myDarkColor))
+                  : _categoriesListView()),
             ),
             Align(
               alignment: Alignment.centerLeft,
@@ -61,8 +64,7 @@ class HomeView extends GetView<HomeController> {
         children: List.generate(apiController.blogsItem.length, (index) {
           return GestureDetector(
             onTap: () {
-              artDetController.selectedArticle =
-                  apiController.blogsItem[index];
+              artDetController.selectedArticle = apiController.blogsItem[index];
               Get.find<MainController>().pController.jumpToPage(3);
             },
             child: Card(

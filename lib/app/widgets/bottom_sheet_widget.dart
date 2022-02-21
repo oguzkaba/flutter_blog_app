@@ -111,13 +111,36 @@ class CustomBottomSheetWidget {
             icon: Icons.touch_app_rounded,
             tcolor: myWhiteColor,
             onClick: () async {
-              controller.isSelected.value = true;
-              final image = controller.imageFileList!.first.path;
-              await apiController.uploadImageApi(
-                  File(controller.imageFileList!.first.path),
-                  controller.imageFileList!.first.path);
-              controller.imageFileList!.clear();
-              Get.back();
+              if (controller.isSelected.value == false) {
+                Get.dialog(AlertDialog(
+                  title: Text("Warning..!",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: myRedColor)),
+                  content: Container(
+                      width: Get.width * .5,
+                      //height: Get.height * .1,
+                      child:  Text("No selected Image File...",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: myDarkColor))),
+                  actions: [
+                    Center(
+                        child: ButtonWidget(
+                            icon: Icons.check_circle,
+                            tcolor: myWhiteColor,
+                            width: Get.width * .3,
+                            height: Get.height * .05,
+                            color: myDarkColor,
+                            text: "Tamam",
+                            onClick: () => Get.back()))
+                  ],
+                ));
+              } else {
+                final image = controller.imageFileList!.first.path;
+                controller.isSelected.value = true;
+                await apiController.uploadImageApi(File(image), image);
+                controller.imageFileList!.clear();
+                Get.back();
+              }
             },
             width: Get.width * .425,
             height: Get.height * .07,
@@ -129,6 +152,7 @@ class CustomBottomSheetWidget {
             icon: Icons.delete_forever_rounded,
             tcolor: myDarkColor,
             onClick: () {
+              controller.isSelected.value = false;
               controller.imageFileList!.clear();
             },
             width: Get.width * .425,

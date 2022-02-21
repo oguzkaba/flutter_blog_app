@@ -3,10 +3,9 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
 class PrefController extends GetxController {
-
   final box = GetStorage();
   final token = "".obs;
-  final image="".obs;
+  final image = "".obs;
   final isLogin = false.obs;
 
   @override
@@ -26,7 +25,7 @@ class PrefController extends GetxController {
 
   bool isRemember() {
     return box.read('login') ??
-        false; //beni hatırla isaretli ise bir sonraki otomatik giris icin login=true
+        false; 
   }
 
   //Login remember shared pref begin-----
@@ -46,7 +45,7 @@ class PrefController extends GetxController {
     //tum degiskenlere pref deki bilgileri at
     isLogin.value = box.read('login') as bool;
     token.value = box.read('token');
-    image.value=box.read('image');
+    image.value = box.read('image');
     await _initPrefs();
   }
 
@@ -57,7 +56,6 @@ class PrefController extends GetxController {
     box.remove('token');
     box.remove('image');
   }
-
 
 //Login remember shared pref end-----
 }

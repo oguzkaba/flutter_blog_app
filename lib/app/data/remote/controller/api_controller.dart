@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter_blog_app/app/data/local/local_storage_controller.dart';
 import 'package:flutter_blog_app/app/data/remote/model/account_model.dart';
 import 'package:flutter_blog_app/app/data/remote/model/account_update_model.dart';
 import 'package:flutter_blog_app/app/data/remote/model/blog_model.dart';
@@ -9,7 +10,6 @@ import 'package:flutter_blog_app/app/data/remote/model/toogle_favorite_model.dar
 import 'package:flutter_blog_app/app/data/remote/model/login_model.dart';
 import 'package:flutter_blog_app/app/data/remote/model/upload_image_model.dart';
 import 'package:flutter_blog_app/app/data/remote/service/remote_services.dart';
-import 'package:flutter_blog_app/app/global/controller/internet_controller.dart';
 import 'package:flutter_blog_app/app/modules/favorites/controllers/favorites_controller.dart';
 import 'package:get/get.dart';
 
@@ -22,7 +22,7 @@ class ApiController extends GetxController {
   AccountModel account = AccountModel();
   AccountUpdateModel upAccount = AccountUpdateModel();
   SignUpModel newUser = SignUpModel();
-  UploadImageModel uploadImage=UploadImageModel();
+  UploadImageModel uploadImage = UploadImageModel();
 
   final categoriesItem = [].obs;
   final blogsItem = [].obs;
@@ -38,52 +38,60 @@ class ApiController extends GetxController {
   final isGetAccountLoading = true.obs;
   final isSignUpLoading = true.obs;
   final isUploadImageLoading = true.obs;
-  
 
-  final token = "".obs;
+  final logout = false.obs;
+  var token = "";
 
-  final NetController netContoller = Get.put(NetController());
+  final PrefController prefController = Get.put(PrefController());
   final FavoritesController favoritesController =
       Get.put(FavoritesController());
 
   @override
   void onInit() async {
+    //preff
+    getToken();
+    super.onInit();
+  }
+
+  getToken() async {
+    if (prefController.token.value != "") {
+      token = prefController.token.value;
+      await _initLoad();
+    } else {
+      token = user.data!.token!;
+      await _initLoad();
+    }
+  }
+
+  _logoutClear() {}
+
+  _initLoad() async {
     await getAllBlogs();
     await getCategories();
     await getAccount();
-
-    if (!netContoller.isOnline) {
-      // if (localDBController.questionsData.isEmpty) {
-      // } else {
-      //   localDBController.getData();
-      // }
-    } else {}
-    super.onInit();
   }
 
 //Login method
   Future<void> login(String email, String password) async {
+    token = "";
     try {
       isLoginLoading(true);
       user = await RemoteServices.userLogin(email, password);
     } finally {
-      // localDBController.questionsData.addAll(user.items!
-      //     .map<LocalQuestionsModel>(
-      //         (e) => LocalQuestionsModel(title: e.title)));
+      token = user.data!.token!;
+      await getAccount();
       isLoginLoading(false);
     }
   }
 
-//Login method
+//SignUp method
   Future<void> signUp(String email, String password, String password2) async {
     try {
       isSignUpLoading(true);
       newUser = await RemoteServices.signUp(email, password, password2);
     } finally {
-      login(email, password);
-      // localDBController.questionsData.addAll(user.items!
-      //     .map<LocalQuestionsModel>(
-      //         (e) => LocalQuestionsModel(title: e.title)));
+      await login(email, password).whenComplete(() => getAccount());
+
       isSignUpLoading(false);
     }
   }
@@ -92,7 +100,7 @@ class ApiController extends GetxController {
   Future<void> getAccount() async {
     try {
       isGetAccountLoading(true);
-      account = await RemoteServices.getAccounts();
+      account = await RemoteServices.getAccounts(token);
     } finally {
       if (account.data!.favoriteBlogIds.isEmpty) {
         accountItem.value = [];
@@ -107,9 +115,10 @@ class ApiController extends GetxController {
   //UpdateAccount method
   Future<void> updateAccount(img, lng, ltd) async {
     try {
-      upAccount = await RemoteServices.updateAccounts(img, lng, ltd);
+      upAccount = await RemoteServices.updateAccounts(
+          img, lng.toString(), ltd.toString(), token);
     } finally {
-      getAccount();
+      await getAccount();
       isGetAccountLoading(false);
     }
   }
@@ -118,10 +127,9 @@ class ApiController extends GetxController {
   Future<void> getCategories() async {
     try {
       isGetCatLoading(true);
-      categories = await RemoteServices.getCategories();
+      categories = await RemoteServices.getCategories(token);
     } finally {
       categoriesItem.value = categories.data!;
-
       isGetCatLoading(false);
     }
   }
@@ -130,7 +138,7 @@ class ApiController extends GetxController {
   Future<void> getBlogs(String? id) async {
     try {
       isGetBlogsLoading(true);
-      blogs = await RemoteServices.getBlogs(id ?? "");
+      blogs = await RemoteServices.getBlogs(id ?? "", token);
     } finally {
       blogsItem.value = blogs.data!;
       isGetBlogsLoading(false);
@@ -141,7 +149,7 @@ class ApiController extends GetxController {
   Future<void> getAllBlogs() async {
     try {
       isGetBlogsLoading(true);
-      allBlogs = await RemoteServices.getBlogs("");
+      allBlogs = await RemoteServices.getBlogs("", token);
     } finally {
       allBlogsItem.value = allBlogs.data!;
       blogsItem.value = allBlogs.data!;
@@ -153,7 +161,7 @@ class ApiController extends GetxController {
   Future<void> toggleFav(String id) async {
     try {
       isToggleFavsLoading(true);
-      favorites = await RemoteServices.toggleFavorites(id);
+      favorites = await RemoteServices.toggleFavorites(id, token);
     } finally {
       await getAccount();
       isToggleFavsLoading(false);
@@ -164,8 +172,7 @@ class ApiController extends GetxController {
   Future<void> uploadImageApi(File file, String filename) async {
     try {
       isUploadImageLoading(true);
-      uploadImage= await RemoteServices.uploadImage(file,filename);
-      getAccount();
+      uploadImage = await RemoteServices.uploadImage(file, filename, token);
     } finally {
       await getAccount();
       isUploadImageLoading(false);

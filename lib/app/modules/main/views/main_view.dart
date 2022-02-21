@@ -9,6 +9,7 @@ import '../controllers/main_controller.dart';
 class MainView extends GetView<MainController> {
   @override
   Widget build(BuildContext context) {
+    // ignore: unused_local_variable
     final NetController netContoller = Get.put(NetController());
     final ApiController apiController = Get.put(ApiController());
 

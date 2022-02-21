@@ -21,8 +21,4 @@ class MainController extends GetxController {
     super.dispose();
   }
 
-  @override
-  void onClose() {
-    super.onClose();
-  }
 }

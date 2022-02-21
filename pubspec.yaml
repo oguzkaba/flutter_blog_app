@@ -7,15 +7,26 @@ environment:
 
 dependencies: 
   cupertino_icons: ^1.0.2
+
+  #State Management
   get: 4.6.1
-  connectivity_plus: ^2.2.1
-  flutter_svg: ^1.0.3
+
+  #Local Storage
   get_storage: ^2.0.3
+
+  #Network
+  http: ^0.13.4
+  flutter_widget_from_html_core: ^0.8.5+1
+  connectivity_plus: ^2.2.1
+
+  #SVG Images
+  flutter_svg: ^1.0.3
+  
+  #Map&Location
   google_maps_flutter: ^2.1.1
   geolocator: ^8.2.0
   image_picker: ^0.8.4+9
-  http: ^0.13.4
-  flutter_widget_from_html_core: ^0.8.5+1
+ 
 
   flutter: 
     sdk: flutter

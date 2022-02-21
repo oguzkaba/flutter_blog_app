@@ -57,7 +57,7 @@ class NetController extends GetxController {
       final result = await InternetAddress.lookup('google.com');
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
         isConnected = true;
-        Get.back();
+        //Get.back();
       }
     } on SocketException catch (_) {
       isConnected = false;

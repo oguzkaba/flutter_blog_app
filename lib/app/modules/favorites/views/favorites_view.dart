@@ -8,10 +8,22 @@ import 'package:get/get.dart';
 import '../controllers/favorites_controller.dart';
 
 class FavoritesView extends GetView<FavoritesController> {
+  final FavoritesController favoritesController =
+      Get.put(FavoritesController());
   final ApiController apiController = Get.put(ApiController());
-  getInit() {
-    apiController.getAccount();
+
+  List favGetFavBlogList() {
+    var favoriteBlog = [];
+    for (var favorite in apiController.account.value.data!.favoriteBlogIds) {
+      for (var article in apiController.blogs.value.data!) {
+        if (favorite == article.id) {
+          favoriteBlog.add(article);
+        }
+      }
+    }
+    return favoriteBlog;
   }
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -29,7 +41,7 @@ class FavoritesView extends GetView<FavoritesController> {
           title: Text('My Favorites'),
           centerTitle: true,
         ),
-        body: Obx(() => apiController.favoriteBlogList.isEmpty
+        body: Obx(() => controller.favoriteBlogs.isEmpty
             ? Center(
                 child: Text("Favori Alanınız Boş",
                     style: TextStyle(fontSize: 30, color: myDarkColor)))
@@ -44,7 +56,7 @@ class FavoritesView extends GetView<FavoritesController> {
     return GridView.count(
         crossAxisCount: 2,
         shrinkWrap: true,
-        children: List.generate(apiController.favoriteBlogList.length, (index) {
+        children: List.generate(controller.favoriteBlogs.length, (index) {
           return GestureDetector(
             onTap: () {
               Get.find<MainController>().pController.jumpToPage(3);
@@ -57,7 +69,7 @@ class FavoritesView extends GetView<FavoritesController> {
               ),
               child: Stack(fit: StackFit.passthrough, children: [
                 Image.network(
-                  apiController.favoriteBlogList[index].image,
+                  favGetFavBlogList()[index].image!,
                   fit: BoxFit.cover,
                 ),
                 Positioned(
@@ -68,7 +80,7 @@ class FavoritesView extends GetView<FavoritesController> {
                       width: 200,
                       color: myWhiteColor.withOpacity(0.7),
                       padding: const EdgeInsets.only(left: 18.0, top: 5.0),
-                      child: Text(apiController.favoriteBlogList[index].title,
+                      child: Text(favGetFavBlogList()[index].title,
                           style: TextStyle(
                               fontWeight: FontWeight.w400,
                               color: myDarkColor))),
@@ -78,8 +90,8 @@ class FavoritesView extends GetView<FavoritesController> {
                     right: 0,
                     child: IconButton(
                         onPressed: () async {
-                          await apiController.toggleFav(
-                              apiController.favoriteBlogList[index].id);
+                          await apiController
+                              .toggleFav(favGetFavBlogList()[index].id);
                         },
                         icon:
                             Icon(Icons.favorite, color: myRedColor, size: 30))),

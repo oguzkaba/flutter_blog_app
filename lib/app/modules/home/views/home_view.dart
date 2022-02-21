@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_blog_app/app/data/remote/controller/api_controller.dart';
 import 'package:flutter_blog_app/app/global/utils/constants.dart';
 import 'package:flutter_blog_app/app/modules/article_detail/controllers/article_detail_controller.dart';
+import 'package:flutter_blog_app/app/modules/favorites/controllers/favorites_controller.dart';
 import 'package:flutter_blog_app/app/modules/main/controllers/main_controller.dart';
 import 'package:get/get.dart';
 import '../controllers/home_controller.dart';
@@ -10,6 +11,8 @@ class HomeView extends GetView<HomeController> {
   final ApiController apiController = Get.put(ApiController());
   final ArticleDetailController artDetController =
       Get.put(ArticleDetailController());
+  final FavoritesController favoritesController =
+      Get.put(FavoritesController());
 
   @override
   Widget build(BuildContext context) {
@@ -61,10 +64,12 @@ class HomeView extends GetView<HomeController> {
     return GridView.count(
         crossAxisCount: 2,
         shrinkWrap: true,
-        children: List.generate(apiController.blogsItem.length, (index) {
+        children:
+            List.generate(apiController.blogs.value.data!.length, (index) {
           return GestureDetector(
             onTap: () {
-              artDetController.selectedArticle = apiController.blogsItem[index];
+              artDetController.selectedArticle.value =
+                  apiController.blogs.value.data![index];
               Get.find<MainController>().pController.jumpToPage(3);
             },
             child: Card(
@@ -75,7 +80,7 @@ class HomeView extends GetView<HomeController> {
               ),
               child: Stack(fit: StackFit.passthrough, children: [
                 Image.network(
-                  apiController.blogsItem[index].image,
+                  apiController.blogs.value.data![index].image!,
                   fit: BoxFit.cover,
                 ),
                 Positioned(
@@ -86,7 +91,7 @@ class HomeView extends GetView<HomeController> {
                       width: 200,
                       color: myWhiteColor.withOpacity(0.7),
                       padding: const EdgeInsets.only(left: 18.0, top: 5.0),
-                      child: Text(apiController.blogsItem[index].title,
+                      child: Text(apiController.blogs.value.data![index].title!,
                           style: TextStyle(
                               fontWeight: FontWeight.w400,
                               color: myDarkColor))),
@@ -104,11 +109,12 @@ class HomeView extends GetView<HomeController> {
       right: 0,
       child: IconButton(
           onPressed: () async {
-            await apiController.toggleFav(apiController.blogsItem[index].id);
+            await apiController
+                .toggleFav(apiController.blogs.value.data![index].id!);
           },
           icon: Icon(Icons.favorite,
-              color: apiController.accountItem
-                      .contains(apiController.blogsItem[index].id)
+              color: favoritesController.favoriteBlogs
+                      .contains(apiController.blogs.value.data![index].id)
                   ? myRedColor
                   : myWhiteColor,
               size: 30)),
@@ -119,12 +125,12 @@ class HomeView extends GetView<HomeController> {
     return ListView.builder(
       shrinkWrap: true,
       scrollDirection: Axis.horizontal,
-      itemCount: apiController.categoriesItem.length,
+      itemCount: apiController.categories.value.data!.length,
       itemBuilder: (BuildContext context, int index) => GestureDetector(
         onTap: () => apiController
-            .getBlogs(apiController.categoriesItem[index].id)
-            .then((value) =>
-                apiController.blogsItem.value = apiController.blogs.data!),
+            .getBlogs(apiController.categories.value.data![index].id),
+        // .then((value) => apiController.categories.value =
+        //     apiController.blogs.value.data),
         child: SizedBox(
           width: Get.width * .42,
           child: Column(
@@ -141,7 +147,7 @@ class HomeView extends GetView<HomeController> {
                   ),
                   elevation: 5,
                   child: Image.network(
-                      apiController.categoriesItem[index].image,
+                      apiController.categories.value.data![index].image!,
                       fit: BoxFit.cover,
                       width: Get.width * .42),
                 ),
@@ -149,7 +155,8 @@ class HomeView extends GetView<HomeController> {
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.only(left: 8.0),
-                  child: Text(apiController.categoriesItem[index].title!,
+                  child: Text(
+                      apiController.categories.value.data![index].title!,
                       textAlign: TextAlign.center,
                       overflow: TextOverflow.ellipsis),
                 ),

@@ -95,22 +95,22 @@ class ProfileView extends GetView<ProfileController> {
       ClipOval(
           child: controller.isLoadingFinish.value == false
               ? Center(child: CircularProgressIndicator(color: myDarkColor))
-              : apiController.uploadImage.data != null &&
+              : apiController.uploadImage.value.data != null &&
                       apiController.isUploadImageLoading.value == false
-                  ? Image.network(apiController.uploadImage.data!,
-                      width: Get.height * .27,
-                      height: Get.height * .27,
+                  ? Image.network(apiController.uploadImage.value.data!,
+                      width: Get.height * .22,
+                      height: Get.height * .22,
                       fit: BoxFit.cover)
-                  : (apiController.account.data!.image != null &&
-                          apiController.account.data!.image != "string" &&
-                          apiController.account.data!.image != "")
-                      ? Image.network(apiController.account.data!.image,
-                          width: Get.height * .27,
-                          height: Get.height * .27,
+                  : (apiController.account.value.data!.image != null &&
+                          apiController.account.value.data!.image != "string" &&
+                          apiController.account.value.data!.image != "")
+                      ? Image.network(apiController.account.value.data!.image,
+                          width: Get.height * .22,
+                          height: Get.height * .22,
                           fit: BoxFit.cover)
                       : Container(
-                          width: Get.height * .27,
-                          height: Get.height * .27,
+                          width: Get.height * .22,
+                          height: Get.height * .22,
                           color: myGreyColor)),
       Positioned(
           bottom: Get.height * .07,
@@ -181,9 +181,9 @@ class ProfileView extends GetView<ProfileController> {
       icon: Icons.library_add_check_rounded,
       tcolor: myDarkColor,
       onClick: () async {
-        if (apiController.account.data != null) {
+        if (apiController.account.value.data != null) {
           await apiController
-              .updateAccount(apiController.uploadImage.data,
+              .updateAccount(apiController.uploadImage.value.data,
                   controller.longObs.value, controller.latObs.value)
               .whenComplete(() => Get.dialog(AlertDialog(
                     title: Text("Başarılı..!",

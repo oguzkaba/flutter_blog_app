@@ -99,20 +99,21 @@ class SignupView extends GetView<SignupController> {
               .whenComplete(() async {
             await apiController.login(
                 controller.email.value, controller.password.value);
-            if (apiController.user.hasError == false &&
+            if (apiController.user.value.hasError == false &&
                 controller.password.value == controller.passwordRetry.value &&
                 apiController.isSignUpLoading.value == false) {
               //apiController.token = apiController.user.data!.token!;
-              prefController.token.value = apiController.user.data!.token!;
+              prefController.token.value =
+                  apiController.user.value.data!.token!;
               prefController.isLogin.value = true;
               prefController.saveToPrefs();
               Get.offAndToNamed(Routes.MAIN);
             } else {
               Get.snackbar(
                   'Warning..!',
-                  apiController.user.validationErrors!.isEmpty
-                      ? "${apiController.user.message}."
-                      : "${apiController.user.validationErrors!.first["Value"] ?? ""}. ${apiController.user.message}.",
+                  apiController.user.value.validationErrors!.isEmpty
+                      ? "${apiController.user.value.message}."
+                      : "${apiController.user.value.validationErrors!.first["Value"] ?? ""}. ${apiController.user.value.message}.",
                   backgroundColor: myRedColor,
                   colorText: myWhiteColor);
             }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_blog_app/app/data/remote/controller/api_controller.dart';
 import 'package:flutter_blog_app/app/global/controller/internet_controller.dart';
 import 'package:flutter_blog_app/app/global/utils/constants.dart';
+import 'package:flutter_blog_app/app/modules/favorites/controllers/favorites_controller.dart';
 import 'package:flutter_blog_app/app/widgets/nav_badge_icon_widget.dart';
 import 'package:get/get.dart';
 import '../controllers/main_controller.dart';
@@ -11,7 +12,8 @@ class MainView extends GetView<MainController> {
   Widget build(BuildContext context) {
     // ignore: unused_local_variable
     final NetController netContoller = Get.put(NetController());
-    final ApiController apiController = Get.put(ApiController());
+    final FavoritesController favoritesController =
+        Get.put(FavoritesController());
 
     if (controller.pController.hasClients) {
       controller.onClose();
@@ -42,7 +44,8 @@ class MainView extends GetView<MainController> {
                   BottomNavigationBarItem(
                       icon: NavBadgeIcon(
                         iconData: Icons.favorite,
-                        notificationCount:apiController.favoriteBlogList.length,
+                        notificationCount:
+                            favoritesController.favoriteBlogs.length,
                       ),
                       label: "Favorite"),
                   BottomNavigationBarItem(

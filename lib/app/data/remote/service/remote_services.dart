@@ -56,7 +56,7 @@ class RemoteServices {
         await http.get(Uri.parse(baseUrl + '/Blog/GetCategories'), headers: {
       "Content-Type": "application/json",
       "accept": "*/*",
-      "Authorization": "Bearer $token"
+      "Authorization": "Bearer $testToken"
     });
 
     if (response.statusCode == 200) {
@@ -67,7 +67,7 @@ class RemoteServices {
   }
 
   ///Get Blogs
-  static Future<GetBlogsModel> getBlogs(String id,String token) async {
+  static Future<GetBlogsModel> getBlogs(String id, String token) async {
     Map data = {
       'CategoryId': id,
     };
@@ -87,7 +87,8 @@ class RemoteServices {
   }
 
   ///Toogle Favorites
-  static Future<ToggleFavoriteModel> toggleFavorites(String id,String token) async {
+  static Future<ToggleFavoriteModel> toggleFavorites(
+      String id, String token) async {
     Map data = {
       'Id': id,
     };
@@ -123,9 +124,9 @@ class RemoteServices {
 
   ///Update Account
   static Future<AccountUpdateModel> updateAccounts(
-      String? image, String? lng, String? ltd,String token) async {
+      String? image, String? lng, String? ltd, String token) async {
     Map data = {
-      "Image": image??"string",
+      "Image": image ?? "string",
       "Location": {"Longtitude": lng, "Latitude": ltd}
     };
     final response = await http.post(Uri.parse(baseUrl + '/Account/Update'),
@@ -144,7 +145,7 @@ class RemoteServices {
 
   ///Upload Image
   static Future<UploadImageModel> uploadImage(
-      File file, String filename,String token) async {
+      File file, String filename, String token) async {
     var request = http.MultipartRequest(
       'POST',
       Uri.parse(baseUrl + '/General/UploadImage'),
@@ -167,14 +168,13 @@ class RemoteServices {
     final http.StreamedResponse response = await request.send();
     String? data;
     await for (String s in response.stream.transform(utf8.decoder)) {
-      data=s;
+      data = s;
     }
     if (response.statusCode == 200) {
       return uploadImageModelFromJson(data!);
-    }else if(response.statusCode ==413){
+    } else if (response.statusCode == 413) {
       throw ("Yüksek yükleme boyutu: ${response.statusCode}");
-    }
-     else {
+    } else {
       throw ("İstek durumu başarısız oldu: ${response.statusCode}");
     }
   }

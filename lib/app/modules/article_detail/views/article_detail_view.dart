@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_blog_app/app/data/remote/controller/api_controller.dart';
 import 'package:flutter_blog_app/app/global/utils/constants.dart';
+import 'package:flutter_blog_app/app/modules/favorites/controllers/favorites_controller.dart';
 import 'package:flutter_blog_app/app/modules/main/controllers/main_controller.dart';
 import 'package:get/get.dart';
 import '../controllers/article_detail_controller.dart';
@@ -14,6 +15,8 @@ class ArticleDetailView extends GetView<ArticleDetailController> {
     final ArticleDetailController articleDetailController =
         Get.put(ArticleDetailController());
     final ApiController apiController = Get.put(ApiController());
+    final FavoritesController favoritesController =
+        Get.put(FavoritesController());
     return WillPopScope(
       onWillPop: () async {
         Get.find<MainController>().pageindex(1);
@@ -31,15 +34,15 @@ class ArticleDetailView extends GetView<ArticleDetailController> {
             actions: [
               Obx(() => IconButton(
                     icon: Icon(
-                        apiController.accountItem
-                                .contains(controller.selectedArticle.id)
+                        favoritesController.favoriteBlogs
+                                .contains(controller.selectedArticle.value.id!)
                             ? Icons.favorite_rounded
                             : Icons.favorite_border_rounded,
                         color: myDarkColor,
                         size: 30),
                     onPressed: () async {
                       await apiController
-                          .toggleFav(controller.selectedArticle.id!);
+                          .toggleFav(controller.selectedArticle.value.id!);
                     },
                   ))
             ],
@@ -51,7 +54,7 @@ class ArticleDetailView extends GetView<ArticleDetailController> {
                 Expanded(
                     child: Column(
                   children: [
-                    Text(controller.selectedArticle.title.toString(),
+                    Text(controller.selectedArticle.value.title.toString(),
                         style: TextStyle(
                             overflow: TextOverflow.ellipsis,
                             fontWeight: FontWeight.bold)),
@@ -62,11 +65,11 @@ class ArticleDetailView extends GetView<ArticleDetailController> {
                 Expanded(
                     flex: 5,
                     child: Image.network(
-                        controller.selectedArticle.image.toString())),
+                        controller.selectedArticle.value.image.toString())),
                 Expanded(
                     flex: 6,
                     child: HtmlWidget(
-                        controller.selectedArticle.content.toString(),
+                        controller.selectedArticle.value.content.toString(),
                         textStyle: TextStyle(overflow: TextOverflow.ellipsis))),
               ],
             ),

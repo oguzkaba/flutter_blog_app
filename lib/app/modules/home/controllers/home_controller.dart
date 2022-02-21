@@ -8,7 +8,7 @@ class HomeController extends GetxController {
 
   @override
   void onInit() async {
-    if (apiController.account.data != null) {
+    if (apiController.account.value.data != null) {
       _homeUpdateLocation();
     } else {
       await apiController.getAccount();
@@ -20,12 +20,12 @@ class HomeController extends GetxController {
   _homeUpdateLocation() {
     profileController.getterLocations();
     if (profileController.isLoadingFinish.value) {
-      if (apiController.account.data!.location == null) {
-        if (apiController.account.data!.image == null) {
+      if (apiController.account.value.data!.location == null) {
+        if (apiController.account.value.data!.image == null) {
           apiController.updateAccount(
               "", profileController.longObs, profileController.latObs);
         } else {
-          var currentImage = apiController.account.data!.image;
+          var currentImage = apiController.account.value.data!.image;
           apiController.updateAccount(currentImage.toString(),
               profileController.longObs.value, profileController.latObs.value);
         }

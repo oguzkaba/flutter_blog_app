@@ -56,7 +56,7 @@ class RemoteServices {
         await http.get(Uri.parse(baseUrl + '/Blog/GetCategories'), headers: {
       "Content-Type": "application/json",
       "accept": "*/*",
-      "Authorization": "Bearer $testToken"
+      "Authorization": "Bearer $token"
     });
 
     if (response.statusCode == 200) {

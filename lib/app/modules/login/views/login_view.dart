@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_blog_app/app/data/local/local_storage_controller.dart';
 import 'package:flutter_blog_app/app/data/remote/controller/api_controller.dart';
+import 'package:flutter_blog_app/app/data/remote/controller/user_login_controller.dart';
 import 'package:flutter_blog_app/app/global/controller/internet_controller.dart';
 import 'package:flutter_blog_app/app/global/utils/constants.dart';
 import 'package:flutter_blog_app/app/global/utils/responsive.dart';
@@ -21,8 +22,7 @@ class LoginView extends GetView<LoginController> {
       GlobalKey<FormState>(debugLabel: "login");
   final NetController netContoller = Get.put(NetController());
   final PrefController prefController = Get.put(PrefController());
-  final ApiController apiController = Get.put(ApiController());
-  final HomeController homeController = Get.put(HomeController());
+  //final ApiController apiController = Get.put(ApiController());
 
   @override
   Widget build(BuildContext context) {
@@ -93,24 +93,22 @@ class LoginView extends GetView<LoginController> {
       onClick: netContoller.isOnline
           ? () async {
               if (_formKeyLogin.currentState!.validate()) {
-                await apiController
+                await UserLoginController()
                     .login(controller.email.value, controller.password.value)
-                    .whenComplete(() {
-                  if (apiController.user.value.hasError == false &&
-                      apiController.isLoginLoading.value == false) {
-                    //apiController.token = apiController.user.data!.token!;
-                    prefController.token.value =
-                        apiController.user.value.data!.token!;
-                    prefController.isLogin.value = true;
-                    prefController.saveToPrefs();
-                    homeController.onInit();
+                    .then((value) {
+                  if (UserLoginController().user.value.hasError == false &&
+                      UserLoginController().isLoginLoading.value == false) {
                     Get.offAndToNamed(Routes.MAIN);
                   } else {
                     Get.snackbar(
                         'Warning..!',
-                        apiController.user.value.validationErrors!.isEmpty
-                            ? "${apiController.user.value.message}."
-                            : "${apiController.user.value.validationErrors!.first["Value"] ?? ""}. ${apiController.user.value.message}.",
+                        UserLoginController()
+                                .user
+                                .value
+                                .validationErrors!
+                                .isEmpty
+                            ? "${UserLoginController().user.value.message}."
+                            : "${UserLoginController().user.value.validationErrors!.first["Value"] ?? ""}. ${UserLoginController().user.value.message}.",
                         backgroundColor: myRedColor,
                         colorText: myWhiteColor);
                   }

@@ -17,6 +17,10 @@ class PrefController extends GetxController {
     super.onInit();
   }
 
+  String getToken() {
+    return box.read('token');
+  }
+
   String getShared() {
     return isRemember()
         ? Routes.MAIN
@@ -24,8 +28,7 @@ class PrefController extends GetxController {
   }
 
   bool isRemember() {
-    return box.read('login') ??
-        false; 
+    return box.read('login') ?? false;
   }
 
   //Login remember shared pref begin-----

@@ -17,7 +17,7 @@ import '../controllers/profile_controller.dart';
 class ProfileView extends GetView<ProfileController> {
   // ignore: annotate_overrides
   final ProfileController controller = Get.put(ProfileController());
-  final ApiController apiController = Get.put(ApiController());
+  final ApiController apiController = Get.find();
   final PrefController prefController = Get.put(PrefController());
 
   @override
@@ -146,8 +146,6 @@ class ProfileView extends GetView<ProfileController> {
                 icon: Icons.logout_rounded,
                 tcolor: myWhiteColor,
                 onClick: () async {
-                  //apiController.logout.value = true;
-                  apiController.onClose();
                   prefController.deleteFromPrefs();
                   Get.offAllNamed(Routes.LOGIN);
                 },

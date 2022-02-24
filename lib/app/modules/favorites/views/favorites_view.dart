@@ -41,7 +41,7 @@ class FavoritesView extends GetView<FavoritesController> {
           title: Text('My Favorites'),
           centerTitle: true,
         ),
-        body: Obx(() => controller.favoriteBlogs.isEmpty
+        body: Obx(() => favoritesController.favoriteBlogs.isEmpty
             ? Center(
                 child: Text("Favori Alanınız Boş",
                     style: TextStyle(fontSize: 30, color: myDarkColor)))
@@ -56,7 +56,8 @@ class FavoritesView extends GetView<FavoritesController> {
     return GridView.count(
         crossAxisCount: 2,
         shrinkWrap: true,
-        children: List.generate(controller.favoriteBlogs.length, (index) {
+        children:
+            List.generate(favoritesController.favoriteBlogs.length, (index) {
           return GestureDetector(
             onTap: () {
               Get.find<MainController>().pController.jumpToPage(3);

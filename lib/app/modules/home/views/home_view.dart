@@ -8,7 +8,6 @@ import 'package:get/get.dart';
 import '../controllers/home_controller.dart';
 
 class HomeView extends GetView<HomeController> {
-  final ApiController apiController = Get.put(ApiController());
   final ArticleDetailController artDetController =
       Get.put(ArticleDetailController());
   final FavoritesController favoritesController =
@@ -33,11 +32,15 @@ class HomeView extends GetView<HomeController> {
           children: <Widget>[
             vPaddingS,
             Expanded(
-              flex: 1,
-              child: Obx(() => apiController.isGetCatLoading.value
-                  ? Center(child: CircularProgressIndicator(color: myDarkColor))
-                  : _categoriesListView()),
-            ),
+                flex: 1,
+                child: GetX<ApiController>(
+                    init: ApiController(),
+                    initState: (_) {},
+                    builder: (_) => _.isGetCatLoading.value
+                        ? Center(
+                            child:
+                                CircularProgressIndicator(color: myDarkColor))
+                        : _categoriesListView(_))),
             Align(
               alignment: Alignment.centerLeft,
               child: Padding(
@@ -50,9 +53,13 @@ class HomeView extends GetView<HomeController> {
             ),
             Expanded(
               flex: 4,
-              child: Obx(() => apiController.isGetBlogsLoading.value
-                  ? Center(child: CircularProgressIndicator(color: myDarkColor))
-                  : _blogArticlesGridView()),
+              child: GetX<ApiController>(
+                  init: ApiController(),
+                  initState: (_) {},
+                  builder: (_) => _.isGetBlogsLoading.value
+                      ? Center(
+                          child: CircularProgressIndicator(color: myDarkColor))
+                      : _blogArticlesGridView(_)),
             ),
           ],
         ),
@@ -60,16 +67,15 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-  GridView _blogArticlesGridView() {
+  GridView _blogArticlesGridView(ApiController _) {
     return GridView.count(
         crossAxisCount: 2,
         shrinkWrap: true,
-        children:
-            List.generate(apiController.blogs.value.data!.length, (index) {
+        children: List.generate(_.blogs.value.data!.length, (index) {
           return GestureDetector(
             onTap: () {
               artDetController.selectedArticle.value =
-                  apiController.blogs.value.data![index];
+                  _.blogs.value.data![index];
               Get.find<MainController>().pController.jumpToPage(3);
             },
             child: Card(
@@ -80,7 +86,7 @@ class HomeView extends GetView<HomeController> {
               ),
               child: Stack(fit: StackFit.passthrough, children: [
                 Image.network(
-                  apiController.blogs.value.data![index].image!,
+                  _.blogs.value.data![index].image!,
                   fit: BoxFit.cover,
                 ),
                 Positioned(
@@ -91,44 +97,42 @@ class HomeView extends GetView<HomeController> {
                       width: 200,
                       color: myWhiteColor.withOpacity(0.7),
                       padding: const EdgeInsets.only(left: 18.0, top: 5.0),
-                      child: Text(apiController.blogs.value.data![index].title!,
+                      child: Text(_.blogs.value.data![index].title!,
                           style: TextStyle(
                               fontWeight: FontWeight.w400,
                               color: myDarkColor))),
                 ),
-                _favButton(index)
+                _favButton(index, _)
               ]),
             ),
           );
         }));
   }
 
-  Widget _favButton(int index) {
+  Widget _favButton(int index, ApiController _) {
     return Positioned(
       top: 0,
       right: 0,
       child: IconButton(
           onPressed: () async {
-            await apiController
-                .toggleFav(apiController.blogs.value.data![index].id!);
+            await _.toggleFav(_.blogs.value.data![index].id!);
           },
           icon: Icon(Icons.favorite,
               color: favoritesController.favoriteBlogs
-                      .contains(apiController.blogs.value.data![index].id)
+                      .contains(_.blogs.value.data![index].id)
                   ? myRedColor
                   : myWhiteColor,
               size: 30)),
     );
   }
 
-  ListView _categoriesListView() {
+  ListView _categoriesListView(ApiController _) {
     return ListView.builder(
       shrinkWrap: true,
       scrollDirection: Axis.horizontal,
-      itemCount: apiController.categories.value.data!.length,
+      itemCount: _.categories.value.data!.length,
       itemBuilder: (BuildContext context, int index) => GestureDetector(
-        onTap: () => apiController
-            .getBlogs(apiController.categories.value.data![index].id),
+        onTap: () => _.getBlogs(_.categories.value.data![index].id),
         // .then((value) => apiController.categories.value =
         //     apiController.blogs.value.data),
         child: SizedBox(
@@ -146,17 +150,14 @@ class HomeView extends GetView<HomeController> {
                     borderRadius: BorderRadius.circular(15.0),
                   ),
                   elevation: 5,
-                  child: Image.network(
-                      apiController.categories.value.data![index].image!,
-                      fit: BoxFit.cover,
-                      width: Get.width * .42),
+                  child: Image.network(_.categories.value.data![index].image!,
+                      fit: BoxFit.cover, width: Get.width * .42),
                 ),
               ),
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.only(left: 8.0),
-                  child: Text(
-                      apiController.categories.value.data![index].title!,
+                  child: Text(_.categories.value.data![index].title!,
                       textAlign: TextAlign.center,
                       overflow: TextOverflow.ellipsis),
                 ),

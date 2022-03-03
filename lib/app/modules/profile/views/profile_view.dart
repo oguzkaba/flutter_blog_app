@@ -2,7 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_blog_app/app/data/local/local_storage_controller.dart';
-import 'package:flutter_blog_app/app/data/remote/controller/api_controller.dart';
+import 'package:flutter_blog_app/app/data/remote/controller/get_account_controller.dart';
+import 'package:flutter_blog_app/app/data/remote/controller/get_account_update_controller.dart';
+import 'package:flutter_blog_app/app/data/remote/controller/upload_image_controller.dart';
 import 'package:flutter_blog_app/app/global/utils/constants.dart';
 import 'package:flutter_blog_app/app/modules/main/controllers/main_controller.dart';
 import 'package:flutter_blog_app/app/routes/app_pages.dart';
@@ -17,7 +19,9 @@ import '../controllers/profile_controller.dart';
 class ProfileView extends GetView<ProfileController> {
   // ignore: annotate_overrides
   final ProfileController controller = Get.put(ProfileController());
-  final ApiController apiController = Get.find();
+  final GetAccountController accountController = Get.put(GetAccountController());
+  final GetAccountUpdeteController getAccountUpdeteController=Get.put(GetAccountUpdeteController());
+  final UploadImageController uploadImageController=Get.put(UploadImageController());
   final PrefController prefController = Get.put(PrefController());
 
   @override
@@ -95,16 +99,16 @@ class ProfileView extends GetView<ProfileController> {
       ClipOval(
           child: controller.isLoadingFinish.value == false
               ? Center(child: CircularProgressIndicator(color: myDarkColor))
-              : apiController.uploadImage.value.data != null &&
-                      apiController.isUploadImageLoading.value == false
-                  ? Image.network(apiController.uploadImage.value.data!,
+              : uploadImageController.uploadImage.value.data != null &&
+                      uploadImageController.isUploadImageLoading.value == false
+                  ? Image.network(uploadImageController.uploadImage.value.data!,
                       width: Get.height * .22,
                       height: Get.height * .22,
                       fit: BoxFit.cover)
-                  : (apiController.account.value.data!.image != null &&
-                          apiController.account.value.data!.image != "string" &&
-                          apiController.account.value.data!.image != "")
-                      ? Image.network(apiController.account.value.data!.image,
+                  : (accountController.account.value.data!.image != null &&
+                          accountController.account.value.data!.image != "string" &&
+                          accountController.account.value.data!.image != "")
+                      ? Image.network(accountController.account.value.data!.image,
                           width: Get.height * .22,
                           height: Get.height * .22,
                           fit: BoxFit.cover)
@@ -120,7 +124,7 @@ class ProfileView extends GetView<ProfileController> {
                 CustomBottomSheetWidget.showBSheet(
                     context: Get.context,
                     controller: controller,
-                    apiController: apiController);
+                    uploadImageController:uploadImageController);
               },
               icon: Icon(Icons.camera_alt, color: myDarkColor, size: 40)))
     ]);
@@ -179,10 +183,10 @@ class ProfileView extends GetView<ProfileController> {
       icon: Icons.library_add_check_rounded,
       tcolor: myDarkColor,
       onClick: () async {
-        if (apiController.account.value.data != null) {
-          await apiController
-              .updateAccount(apiController.uploadImage.value.data,
-                  controller.longObs.value, controller.latObs.value)
+        if (accountController.account.value.data != null) {
+          await getAccountUpdeteController
+              .updateAccount(uploadImageController.uploadImage.value.data,
+                  controller.longObs.value, controller.latObs.value,PrefController().getToken())
               .whenComplete(() => Get.dialog(AlertDialog(
                     title: Text("Başarılı..!",
                         textAlign: TextAlign.center,

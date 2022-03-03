@@ -6,7 +6,8 @@ import 'package:get/get.dart';
 class GetAccountController extends GetxController {
   final account = AccountModel().obs;
   final isGetAccountLoading = true.obs;
-  final GetBlogsController getBlogsController = Get.put(GetBlogsController());
+  final GetBlogsController getBlogsController =
+      Get.put(GetBlogsController());
 
   Future<void> getAccount(String token) async {
     try {

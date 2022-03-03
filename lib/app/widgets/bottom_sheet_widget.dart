@@ -1,7 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_blog_app/app/data/local/local_storage_controller.dart';
 import 'package:flutter_blog_app/app/data/remote/controller/api_controller.dart';
+import 'package:flutter_blog_app/app/data/remote/controller/upload_image_controller.dart';
 import 'package:flutter_blog_app/app/global/utils/constants.dart';
 import 'package:flutter_blog_app/app/modules/profile/controllers/profile_controller.dart';
 import 'package:flutter_blog_app/app/widgets/elevated_button_widget.dart';
@@ -11,7 +13,7 @@ import 'package:image_picker/image_picker.dart';
 class CustomBottomSheetWidget {
   static void showBSheet(
       {required BuildContext? context,
-      required ApiController apiController,
+      required UploadImageController uploadImageController,
       required ProfileController controller}) {
     Get.bottomSheet(
         Container(
@@ -37,7 +39,7 @@ class CustomBottomSheetWidget {
                 child: _imagePreview(controller),
               ),
               vPaddingS,
-              Expanded(child: _buttonGroup(controller, apiController)),
+              Expanded(child: _buttonGroup(controller, uploadImageController)),
               vPaddingS
             ]),
           ),
@@ -101,7 +103,7 @@ class CustomBottomSheetWidget {
   }
 
   static Row _buttonGroup(
-      ProfileController controller, ApiController apiController) {
+      ProfileController controller, UploadImageController uploadImageController) {
     return Row(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
@@ -137,7 +139,7 @@ class CustomBottomSheetWidget {
               } else {
                 final image = controller.imageFileList!.first.path;
                 controller.isSelected.value = true;
-                await apiController.uploadImageApi(File(image), image);
+                await uploadImageController.uploadImageApi(File(image), image,PrefController().getToken());
                 controller.imageFileList!.clear();
                 Get.back();
               }

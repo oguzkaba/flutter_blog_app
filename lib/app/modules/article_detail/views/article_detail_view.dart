@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_blog_app/app/data/remote/controller/api_controller.dart';
+import 'package:flutter_blog_app/app/data/remote/controller/get_account_controller.dart';
 import 'package:flutter_blog_app/app/global/utils/constants.dart';
 import 'package:flutter_blog_app/app/modules/favorites/controllers/favorites_controller.dart';
 import 'package:flutter_blog_app/app/modules/main/controllers/main_controller.dart';
@@ -14,9 +15,9 @@ class ArticleDetailView extends GetView<ArticleDetailController> {
   Widget build(BuildContext context) {
     final ArticleDetailController articleDetailController =
         Get.put(ArticleDetailController());
+    final GetAccountController getAccountController = Get.find();
     final ApiController apiController = Get.put(ApiController());
-    final FavoritesController favoritesController =
-        Get.put(FavoritesController());
+
     return WillPopScope(
       onWillPop: () async {
         Get.find<MainController>().pageindex(1);
@@ -34,7 +35,7 @@ class ArticleDetailView extends GetView<ArticleDetailController> {
             actions: [
               Obx(() => IconButton(
                     icon: Icon(
-                        favoritesController.favoriteBlogs
+                        getAccountController.favGetFavBlogList()
                                 .contains(controller.selectedArticle.value.id!)
                             ? Icons.favorite_rounded
                             : Icons.favorite_border_rounded,

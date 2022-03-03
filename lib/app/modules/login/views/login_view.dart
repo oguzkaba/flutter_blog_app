@@ -22,7 +22,7 @@ class LoginView extends GetView<LoginController> {
       GlobalKey<FormState>(debugLabel: "login");
   final NetController netContoller = Get.put(NetController());
   final PrefController prefController = Get.put(PrefController());
-  //final ApiController apiController = Get.put(ApiController());
+  final UserLoginController loginController = Get.put(UserLoginController());
 
   @override
   Widget build(BuildContext context) {
@@ -93,22 +93,22 @@ class LoginView extends GetView<LoginController> {
       onClick: netContoller.isOnline
           ? () async {
               if (_formKeyLogin.currentState!.validate()) {
-                await UserLoginController()
+                await loginController
                     .login(controller.email.value, controller.password.value)
                     .then((value) {
-                  if (UserLoginController().user.value.hasError == false &&
-                      UserLoginController().isLoginLoading.value == false) {
+                  if (loginController.user.value.hasError == false &&
+                      loginController.isLoginLoading.value == false) {
                     Get.offAndToNamed(Routes.MAIN);
                   } else {
                     Get.snackbar(
                         'Warning..!',
-                        UserLoginController()
+                        loginController
                                 .user
                                 .value
                                 .validationErrors!
                                 .isEmpty
-                            ? "${UserLoginController().user.value.message}."
-                            : "${UserLoginController().user.value.validationErrors!.first["Value"] ?? ""}. ${UserLoginController().user.value.message}.",
+                            ? "${loginController.user.value.message}."
+                            : "${loginController.user.value.validationErrors!.first["Value"] ?? ""}. ${loginController.user.value.message}.",
                         backgroundColor: myRedColor,
                         colorText: myWhiteColor);
                   }

@@ -19,9 +19,9 @@ class ApiController extends GetxController {
   final blogs = GetBlogsModel().obs; //
   final favorites = ToggleFavoriteModel().obs;
   final account = AccountModel().obs; //
-  final upAccount = AccountUpdateModel().obs;
+  final upAccount = AccountUpdateModel().obs;//
   final newUser = SignUpModel().obs;
-  final uploadImage = UploadImageModel().obs;
+  final uploadImage = UploadImageModel().obs;//
 
   final accountItem = [].obs;
   //final favoriteBlogList = [].obs;
@@ -29,10 +29,10 @@ class ApiController extends GetxController {
   final isLoginLoading = true.obs; //
   final isGetCatLoading = true.obs; //
   final isGetBlogsLoading = true.obs; //
-  final isToggleFavsLoading = true.obs;
+  final isToggleFavsLoading = true.obs;//
   final isGetAccountLoading = true.obs; //
   final isSignUpLoading = true.obs;
-  final isUploadImageLoading = true.obs;
+  final isUploadImageLoading = true.obs;//
 
   final logout = false.obs;
   var token = "";
@@ -93,9 +93,9 @@ class ApiController extends GetxController {
       account.value = await RemoteServices.getAccounts(token);
     } finally {
       if (account.value.data!.favoriteBlogIds.isEmpty) {
-        favoritesController.favoriteBlogs.value = [];
+        //favoritesController.favoriteBlogs.value = [];
       } else {
-        favoritesController.favoriteBlogs.value =
+        //favoritesController.favoriteBlogs.value =
             account.value.data!.favoriteBlogIds;
       }
       // if (token == "") {

@@ -12,6 +12,10 @@ class UserLoginController extends GetxController {
   //var token = "";
 
   final PrefController prefController = Get.put(PrefController());
+  final GetBlogsController blogsController= Get.put(GetBlogsController());
+  final GetCategoriesController categoriesController= Get.put(GetCategoriesController());
+  final GetAccountController accountController= Get.put(GetAccountController());
+
 
   setToken(String token) async {
     if (prefController.token.value != "") {
@@ -25,9 +29,9 @@ class UserLoginController extends GetxController {
   }
 
   _initLoad(String token) async {
-    await GetBlogsController().getBlogs("", token);
-    await GetCategoriesController().getCategories(token);
-    await GetAccountController().getAccount(token);
+    await blogsController.getBlogs("", token);
+    await categoriesController.getCategories(token);
+    await accountController.getAccount(token);
   }
 
 //Login method

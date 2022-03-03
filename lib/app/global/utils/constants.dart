@@ -13,7 +13,7 @@ const String testToken =
 
 ///
 ///API-End Point
-const String baseUrl = "http://test020.internative.net";
+const String baseUrl = "http://test20.internative.net";
 
 ///
 

@@ -6,32 +6,28 @@ import 'package:get/get.dart';
 class GetAccountController extends GetxController {
   final account = AccountModel().obs;
   final isGetAccountLoading = true.obs;
-  final GetBlogsController getBlogsController =
-      Get.put(GetBlogsController());
+  final favoriteBlog = [].obs;
+  final GetBlogsController getBlogsController = Get.find();
+
+  @override
+  void onInit() {
+    account.value=AccountModel();
+    favoriteBlog.value = [];
+    GetAccountController().update();
+    super.onInit();
+  }
 
   Future<void> getAccount(String token) async {
     try {
       isGetAccountLoading(true);
       account.value = await RemoteServices.getAccounts(token);
     } finally {
-      favGetFavBlogList();
-      isGetAccountLoading(false);
-    }
-  }
-
-  List favGetFavBlogList() {
-    var favoriteBlog = [];
-    if (account.value.data!.favoriteBlogIds.isEmpty) {
-      return favoriteBlog = [];
-    } else {
-      for (var favorite in account.value.data!.favoriteBlogIds) {
-        for (var article in getBlogsController.blogs.value.data!) {
-          if (favorite == article.id) {
-            favoriteBlog.add(article);
-          }
-        }
+      if (getBlogsController.blogs.value.data == null) {
+        await getBlogsController.getBlogs("", token);
       }
-      return favoriteBlog;
+      favoriteBlog.value = account.value.data!.favoriteBlogIds;
+      //favGetFavBlogList();
+      isGetAccountLoading(false);
     }
   }
 }

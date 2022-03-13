@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_blog_app/app/data/local/local_storage_controller.dart';
-import 'package:flutter_blog_app/app/data/remote/controller/api_controller.dart';
 import 'package:flutter_blog_app/app/data/remote/controller/upload_image_controller.dart';
 import 'package:flutter_blog_app/app/global/utils/constants.dart';
 import 'package:flutter_blog_app/app/modules/profile/controllers/profile_controller.dart';

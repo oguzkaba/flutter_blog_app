@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_blog_app/app/data/local/local_storage_controller.dart';
 import 'package:flutter_blog_app/app/data/remote/controller/get_account_controller.dart';
@@ -11,14 +13,18 @@ import 'package:get/get.dart';
 import '../controllers/home_controller.dart';
 
 class HomeView extends GetView<HomeController> {
-  final ArticleDetailController artDetController =
-      Get.put(ArticleDetailController());
-  final ToogleFavController toogleFavController = Get.put(ToogleFavController());
-  final GetBlogsController getBlogsController = Get.put(GetBlogsController());
-  final GetCategoriesController getCategoriesController = Get.put(GetCategoriesController());
-  final GetAccountController getAccountController=Get.find();
+  final ToogleFavController toogleFavController =
+      Get.put(ToogleFavController());
+  final GetBlogsController getBlogsController = Get.find();
+  final GetBlogsController getBlogsController2 =
+      Get.put(GetBlogsController(), tag: "selectCategory");
+  final GetCategoriesController getCategoriesController = Get.find();
+  final GetAccountController getAccountController = Get.find();
+
   @override
   Widget build(BuildContext context) {
+    final ArticleDetailController articleDetailController =
+        Get.put(ArticleDetailController());
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -41,7 +47,7 @@ class HomeView extends GetView<HomeController> {
                     ? Center(
                         child: CircularProgressIndicator(color: myDarkColor))
                     : _categoriesListView(
-                        getCategoriesController, getBlogsController))),
+                        getCategoriesController, getBlogsController2))),
             Align(
               alignment: Alignment.centerLeft,
               child: Padding(
@@ -56,7 +62,11 @@ class HomeView extends GetView<HomeController> {
               flex: 4,
               child: Obx(() => getBlogsController.isGetBlogsLoading.value
                   ? Center(child: CircularProgressIndicator(color: myDarkColor))
-                  : _blogArticlesGridView()),
+                  : _blogArticlesGridView(
+                      getBlogsController2.blogs.value.data != null
+                          ? getBlogsController2
+                          : getBlogsController,
+                      articleDetailController)),
             ),
           ],
         ),
@@ -64,16 +74,16 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-  GridView _blogArticlesGridView() {
+  GridView _blogArticlesGridView(
+      GetBlogsController gb, ArticleDetailController articleDetailController) {
     return GridView.count(
         crossAxisCount: 2,
         shrinkWrap: true,
-        children:
-            List.generate(getBlogsController.blogs.value.data!.length, (index) {
+        children: List.generate(gb.blogs.value.data!.length, (index) {
           return GestureDetector(
-            onTap: () {
-              artDetController.selectedArticle.value =
-                  getBlogsController.blogs.value.data![index];
+            onTap: () async {
+              articleDetailController.selectedArticle.value =
+                  gb.blogs.value.data![index];
               Get.find<MainController>().pController.jumpToPage(3);
             },
             child: Card(
@@ -84,7 +94,7 @@ class HomeView extends GetView<HomeController> {
               ),
               child: Stack(fit: StackFit.passthrough, children: [
                 Image.network(
-                  getBlogsController.blogs.value.data![index].image!,
+                  gb.blogs.value.data![index].image!,
                   fit: BoxFit.cover,
                 ),
                 Positioned(
@@ -95,31 +105,30 @@ class HomeView extends GetView<HomeController> {
                       width: 200,
                       color: myWhiteColor.withOpacity(0.7),
                       padding: const EdgeInsets.only(left: 18.0, top: 5.0),
-                      child: Text(
-                          getBlogsController.blogs.value.data![index].title!,
+                      child: Text(gb.blogs.value.data![index].title!,
                           style: TextStyle(
                               fontWeight: FontWeight.w400,
                               color: myDarkColor))),
                 ),
-                _favButton(index)
+                _favButton(index, gb)
               ]),
             ),
           );
         }));
   }
 
-  Widget _favButton(int index) {
+  Widget _favButton(int index, GetBlogsController gb) {
     return Positioned(
       top: 0,
       right: 0,
       child: IconButton(
           onPressed: () async {
             await toogleFavController.toggleFav(
-                getBlogsController.blogs.value.data![index].id!, PrefController().getToken());
+                gb.blogs.value.data![index].id!, PrefController().getToken());
           },
           icon: Icon(Icons.favorite,
-              color: getAccountController.favGetFavBlogList()
-                      .contains(getBlogsController.blogs.value.data![index].id)
+              color: getAccountController.favoriteBlog
+                      .contains(gb.blogs.value.data![index].id)
                   ? myRedColor
                   : myWhiteColor,
               size: 30)),
@@ -133,10 +142,11 @@ class HomeView extends GetView<HomeController> {
       scrollDirection: Axis.horizontal,
       itemCount: gc.categories.value.data!.length,
       itemBuilder: (BuildContext context, int index) => GestureDetector(
-        onTap: () => gb.getBlogs(
-            gc.categories.value.data![index].id, PrefController().getToken()),
-        // .then((value) => apiController.categories.value =
-        //     apiController.blogs.value.data),
+        onTap: () {
+          gc.selectedCategory.value = index;
+          gb.getBlogs(
+              gc.categories.value.data![index].id, PrefController().getToken());
+        },
         child: SizedBox(
           width: Get.width * .42,
           child: Column(
@@ -144,24 +154,32 @@ class HomeView extends GetView<HomeController> {
             children: [
               Expanded(
                 flex: 6,
-                child: Card(
-                  margin: EdgeInsets.all(5),
-                  semanticContainer: true,
-                  clipBehavior: Clip.antiAliasWithSaveLayer,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15.0),
-                  ),
-                  elevation: 5,
-                  child: Image.network(gc.categories.value.data![index].image!,
-                      fit: BoxFit.cover, width: Get.width * .42),
-                ),
+                child: Obx(() => Card(
+                      shadowColor: Colors.deepPurple,
+                      margin: EdgeInsets.all(5),
+                      semanticContainer: true,
+                      clipBehavior: Clip.antiAliasWithSaveLayer,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15.0),
+                      ),
+                      elevation: index == gc.selectedCategory.value ? 5 : 0,
+                      child: Image.network(
+                          gc.categories.value.data![index].image!,
+                          fit: BoxFit.cover,
+                          width: Get.width * .42),
+                    )),
               ),
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.only(left: 8.0),
-                  child: Text(gc.categories.value.data![index].title!,
+                  child: Obx(() => Text(gc.categories.value.data![index].title!,
                       textAlign: TextAlign.center,
-                      overflow: TextOverflow.ellipsis),
+                      style: index == gc.selectedCategory.value
+                          ? TextStyle(
+                              fontWeight: FontWeight.bold,
+                              decoration: TextDecoration.underline)
+                          : TextStyle(),
+                      overflow: TextOverflow.ellipsis)),
                 ),
               )
             ],

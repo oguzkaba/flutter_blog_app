@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_blog_app/app/data/local/local_storage_controller.dart';
-import 'package:flutter_blog_app/app/data/remote/controller/api_controller.dart';
 import 'package:flutter_blog_app/app/data/remote/controller/get_account_controller.dart';
+import 'package:flutter_blog_app/app/data/remote/controller/get_blogs_controller.dart';
 import 'package:flutter_blog_app/app/data/remote/controller/toogle_fav_controller.dart';
 import 'package:flutter_blog_app/app/global/utils/constants.dart';
+import 'package:flutter_blog_app/app/modules/article_detail/controllers/article_detail_controller.dart';
 import 'package:flutter_blog_app/app/modules/main/controllers/main_controller.dart';
 
 import 'package:get/get.dart';
@@ -11,10 +12,9 @@ import 'package:get/get.dart';
 import '../controllers/favorites_controller.dart';
 
 class FavoritesView extends GetView<FavoritesController> {
-
   final ToogleFavController favController = Get.put(ToogleFavController());
-  final GetAccountController getAccountController=Get.find();
-
+  final ArticleDetailController artDetController =
+      Get.put(ArticleDetailController());
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -32,11 +32,11 @@ class FavoritesView extends GetView<FavoritesController> {
           title: Text('My Favorites'),
           centerTitle: true,
         ),
-        body: Obx(() => getAccountController.favGetFavBlogList().isEmpty
+        body: Obx(() => Get.find<GetAccountController>().favoriteBlog.isEmpty
             ? Center(
                 child: Text("Favori Alanınız Boş",
                     style: TextStyle(fontSize: 30, color: myDarkColor)))
-            : getAccountController.isGetAccountLoading.value
+            : Get.find<GetAccountController>().isGetAccountLoading.value
                 ? Center(child: CircularProgressIndicator(color: myDarkColor))
                 : _blogArticlesGridView()),
       ),
@@ -44,13 +44,34 @@ class FavoritesView extends GetView<FavoritesController> {
   }
 
   GridView _blogArticlesGridView() {
+    var favBlogIds = Get.find<GetAccountController>().favoriteBlog;
+    var articles = Get.find<GetBlogsController>().blogs.value.data!;
+
+    List favGetFavBlogList() {
+      var favBlog = [];
+      if (favBlogIds.isEmpty) {
+        return favBlog = [];
+      } else {
+        for (var favorite in favBlogIds) {
+          for (var article in articles) {
+            if (favorite == article.id) {
+              favBlog.add(article);
+            }
+          }
+        }
+        return favBlog;
+      }
+    }
+
     return GridView.count(
         crossAxisCount: 2,
         shrinkWrap: true,
-        children:
-            List.generate(getAccountController.favGetFavBlogList().length, (index) {
+        children: List.generate(
+            Get.find<GetAccountController>().favoriteBlog.length, (index) {
           return GestureDetector(
             onTap: () {
+              artDetController.selectedArticle.value =
+                  favGetFavBlogList()[index];
               Get.find<MainController>().pController.jumpToPage(3);
             },
             child: Card(
@@ -61,7 +82,7 @@ class FavoritesView extends GetView<FavoritesController> {
               ),
               child: Stack(fit: StackFit.passthrough, children: [
                 Image.network(
-                  getAccountController.favGetFavBlogList()[index].image!,
+                  favGetFavBlogList()[index].image!,
                   fit: BoxFit.cover,
                 ),
                 Positioned(
@@ -72,7 +93,7 @@ class FavoritesView extends GetView<FavoritesController> {
                       width: 200,
                       color: myWhiteColor.withOpacity(0.7),
                       padding: const EdgeInsets.only(left: 18.0, top: 5.0),
-                      child: Text(getAccountController.favGetFavBlogList()[index].title,
+                      child: Text(favGetFavBlogList()[index].title,
                           style: TextStyle(
                               fontWeight: FontWeight.w400,
                               color: myDarkColor))),
@@ -82,8 +103,9 @@ class FavoritesView extends GetView<FavoritesController> {
                     right: 0,
                     child: IconButton(
                         onPressed: () async {
-                          await favController
-                              .toggleFav(getAccountController.favGetFavBlogList()[index].id,PrefController().getToken());
+                          await favController.toggleFav(
+                              favGetFavBlogList()[index].id,
+                              PrefController().getToken());
                         },
                         icon:
                             Icon(Icons.favorite, color: myRedColor, size: 30))),

@@ -8,7 +8,7 @@ class ToogleFavController extends GetxController {
   Future<void> toggleFav(String id,token) async {
   final favorites = ToggleFavoriteModel().obs;
   final isToggleFavsLoading = true.obs;
-  final GetAccountController getAccountController=Get.put(GetAccountController());
+  final GetAccountController getAccountController=Get.find();
 
     try {
       isToggleFavsLoading(true);

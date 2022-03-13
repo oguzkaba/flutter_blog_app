@@ -14,25 +14,25 @@ import 'package:flutter_blog_app/app/modules/favorites/controllers/favorites_con
 import 'package:get/get.dart';
 
 class ApiController extends GetxController {
-  final user = UserLoginModel().obs; //
-  final categories = GetCategoriesModel().obs; //
-  final blogs = GetBlogsModel().obs; //
+  final user = UserLoginModel().obs;
+  final categories = GetCategoriesModel().obs;
+  final blogs = GetBlogsModel().obs;
   final favorites = ToggleFavoriteModel().obs;
-  final account = AccountModel().obs; //
-  final upAccount = AccountUpdateModel().obs;//
+  final account = AccountModel().obs;
+  final upAccount = AccountUpdateModel().obs;
   final newUser = SignUpModel().obs;
-  final uploadImage = UploadImageModel().obs;//
+  final uploadImage = UploadImageModel().obs;
 
   final accountItem = [].obs;
   //final favoriteBlogList = [].obs;
 
-  final isLoginLoading = true.obs; //
-  final isGetCatLoading = true.obs; //
-  final isGetBlogsLoading = true.obs; //
-  final isToggleFavsLoading = true.obs;//
-  final isGetAccountLoading = true.obs; //
+  final isLoginLoading = true.obs;
+  final isGetCatLoading = true.obs;
+  final isGetBlogsLoading = true.obs;
+  final isToggleFavsLoading = true.obs;
+  final isGetAccountLoading = true.obs;
   final isSignUpLoading = true.obs;
-  final isUploadImageLoading = true.obs;//
+  final isUploadImageLoading = true.obs;
 
   final logout = false.obs;
   var token = "";
@@ -41,12 +41,19 @@ class ApiController extends GetxController {
   final FavoritesController favoritesController =
       Get.put(FavoritesController());
 
-  setToken() async {
+  @override
+  void onInit() async {
+    //preff
+    getToken();
+    super.onInit();
+  }
+
+  getToken() async {
     if (prefController.token.value != "") {
       token = prefController.token.value;
       await _initLoad();
     } else {
-      token = user.value.data!.token!;
+      //token = user.value.data!.token!;
       await _initLoad();
     }
   }
@@ -64,11 +71,10 @@ class ApiController extends GetxController {
       isLoginLoading(true);
       user.value = await RemoteServices.userLogin(email, password);
     } finally {
-      if (user.value.hasError == false) {
-        await setToken();
+      if (user.value.message == null) {
+        token = user.value.data!.token!;
       }
-
-      //await getAccount();
+      await getAccount();
       isLoginLoading(false);
     }
   }
@@ -80,8 +86,7 @@ class ApiController extends GetxController {
       newUser.value = await RemoteServices.signUp(email, password, password2);
     } finally {
       await login(email, password).whenComplete(() => getAccount());
-      await getBlogs("");
-      await getCategories();
+
       isSignUpLoading(false);
     }
   }
@@ -92,12 +97,12 @@ class ApiController extends GetxController {
       isGetAccountLoading(true);
       account.value = await RemoteServices.getAccounts(token);
     } finally {
-      if (account.value.data!.favoriteBlogIds.isEmpty) {
-        //favoritesController.favoriteBlogs.value = [];
-      } else {
-        //favoritesController.favoriteBlogs.value =
-            account.value.data!.favoriteBlogIds;
-      }
+      // if (account.value.data!.favoriteBlogIds.isEmpty) {
+      //   favoritesController.favoriteBlogs.value = [];
+      // } else {
+      //   favoritesController.favoriteBlogs.value =
+      //       account.value.data!.favoriteBlogIds;
+      // }
       // if (token == "") {
       //   favGetFavBlogList();
       // }
@@ -108,7 +113,6 @@ class ApiController extends GetxController {
   //UpdateAccount method
   Future<void> updateAccount(img, lng, ltd) async {
     try {
-      isGetAccountLoading(true);
       upAccount.value = await RemoteServices.updateAccounts(
           img, lng.toString(), ltd.toString(), token);
     } finally {
@@ -160,15 +164,14 @@ class ApiController extends GetxController {
     }
   }
 
-  // List favGetFavBlogList() {
-  //   var favoriteBlog = [];
+  // favGetFavBlogList() {
+  //   favoriteBlogList.clear();
   //   for (var favorite in account.value.data!.favoriteBlogIds) {
   //     for (var article in blogs.value.data!) {
   //       if (favorite == article.id) {
-  //         favoriteBlog.add(article);
+  //         favoriteBlogList.add(article);
   //       }
   //     }
   //   }
-  //   return favoriteBlog;
   // }
 }

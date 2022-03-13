@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_blog_app/app/data/local/local_storage_controller.dart';
 import 'package:flutter_blog_app/app/data/remote/controller/get_account_controller.dart';
-import 'package:flutter_blog_app/app/data/remote/controller/get_account_update_controller.dart';
+import 'package:flutter_blog_app/app/data/remote/controller/update_get_account_controller.dart';
 import 'package:flutter_blog_app/app/data/remote/controller/upload_image_controller.dart';
 import 'package:flutter_blog_app/app/global/utils/constants.dart';
 import 'package:flutter_blog_app/app/modules/main/controllers/main_controller.dart';
@@ -19,13 +19,17 @@ import '../controllers/profile_controller.dart';
 class ProfileView extends GetView<ProfileController> {
   // ignore: annotate_overrides
   final ProfileController controller = Get.put(ProfileController());
-  final GetAccountController accountController = Get.put(GetAccountController());
-  final GetAccountUpdeteController getAccountUpdeteController=Get.put(GetAccountUpdeteController());
-  final UploadImageController uploadImageController=Get.put(UploadImageController());
+
+  final UpdeteGetAccountController getAccountUpdeteController =
+      Get.put(UpdeteGetAccountController());
+  final UploadImageController uploadImageController =
+      Get.put(UploadImageController());
   final PrefController prefController = Get.put(PrefController());
 
   @override
   Widget build(BuildContext context) {
+      final GetAccountController accountController =
+      Get.find();
     return WillPopScope(
       onWillPop: () async {
         Get.find<MainController>().pageindex(1);
@@ -46,15 +50,15 @@ class ProfileView extends GetView<ProfileController> {
               children: [
                 vPaddingM,
                 Expanded(
-                  child: Obx(() => _profileCircleImage()),
+                  child: Obx(() => _profileCircleImage(accountController)),
                 ),
                 vPaddingM,
                 Expanded(
-                  child: Obx(() => _showMap()),
+                  child: Obx(() => _showMap(accountController)),
                 ),
                 vPaddingM,
                 Expanded(
-                  child: _buttonColumn(context),
+                  child: _buttonColumn(context,accountController),
                 )
               ],
             ),
@@ -62,39 +66,50 @@ class ProfileView extends GetView<ProfileController> {
     );
   }
 
-  Container _showMap() {
+  Container _showMap(GetAccountController accountController) {
     return Container(
         width: Get.width * 0.9,
         decoration: BoxDecoration(
             color: myWhiteColor,
             borderRadius: BorderRadius.all(Radius.circular(20))),
-        child: controller.isLoadingFinish.value
+        child: controller.dragMarkerPosition.value &&
+                controller.isLoadingFinish.value &&
+                accountController.isGetAccountLoading.value == false
             ? GoogleMap(
-                //onLongPress:(longPressValue)=>controller.longPress(longPressValue) ,
+                // onLongPress: (longPressValue) =>
+                //     controller.longPress(longPressValue),
                 myLocationButtonEnabled: true,
                 myLocationEnabled: true,
-                onMapCreated: (mapController) {
-                  // if (controller.dragMarkerPosition.value) {
-                  //   mapController.animateCamera(CameraUpdate.newCameraPosition(
-                  //       controller.currentLatLng!));
-                  // }
-                },
+                onMapCreated: (mapController) =>
+                    controller.mapController = mapController,
                 onCameraMove: ((position) =>
                     controller.currentLatLng = position),
-                markers: Set<Marker>.of(controller.markers),
-                initialCameraPosition: controller.currentLatLng!)
+                markers: accountController.isGetAccountLoading.value == false && accountController.account.value.data!.location["Latitude"] != null
+                    ? controller.addMark(
+                        LatLng(
+                            double.parse(accountController
+                                .account.value.data!.location["Latitude"]),
+                            double.parse(accountController
+                                .account.value.data!.location["Longtitude"])),
+                        "Account Location")
+                    : Set<Marker>.of(controller.markers),
+                initialCameraPosition: accountController.account.value.data!.location["Latitude"] == null
+                    ? controller.currentLatLng!
+                    : CameraPosition(
+                        zoom: 14,
+                        target: LatLng(double.parse(accountController.account.value.data!.location["Latitude"]), double.parse(accountController.account.value.data!.location["Longtitude"]))))
             : Center(child: CircularProgressIndicator()));
   }
 
-  Column _buttonColumn(BuildContext context) {
+  Column _buttonColumn(BuildContext context,GetAccountController accountController) {
     return Column(children: [
-      _saveButton(context),
+      _saveButton(context,accountController),
       vPaddingS,
-      _logoutButton(context),
+      _logoutButton(context,accountController),
     ]);
   }
 
-  Widget _profileCircleImage() {
+  Widget _profileCircleImage(GetAccountController accountController) {
     return Stack(children: [
       ClipOval(
           child: controller.isLoadingFinish.value == false
@@ -105,10 +120,13 @@ class ProfileView extends GetView<ProfileController> {
                       width: Get.height * .22,
                       height: Get.height * .22,
                       fit: BoxFit.cover)
-                  : (accountController.account.value.data!.image != null &&
-                          accountController.account.value.data!.image != "string" &&
+                  : (accountController.isGetAccountLoading.value == false &&
+                          accountController.account.value.data!.image != null &&
+                          accountController.account.value.data!.image !=
+                              "string" &&
                           accountController.account.value.data!.image != "")
-                      ? Image.network(accountController.account.value.data!.image,
+                      ? Image.network(
+                          accountController.account.value.data!.image,
                           width: Get.height * .22,
                           height: Get.height * .22,
                           fit: BoxFit.cover)
@@ -124,13 +142,13 @@ class ProfileView extends GetView<ProfileController> {
                 CustomBottomSheetWidget.showBSheet(
                     context: Get.context,
                     controller: controller,
-                    uploadImageController:uploadImageController);
+                    uploadImageController: uploadImageController);
               },
               icon: Icon(Icons.camera_alt, color: myDarkColor, size: 40)))
     ]);
   }
 
-  ButtonWidget _logoutButton(BuildContext context) {
+  ButtonWidget _logoutButton(BuildContext context,GetAccountController accountController) {
     return ButtonWidget(
       text: "Log Out",
       icon: Icons.logout,
@@ -150,7 +168,7 @@ class ProfileView extends GetView<ProfileController> {
                 icon: Icons.logout_rounded,
                 tcolor: myWhiteColor,
                 onClick: () async {
-                  prefController.deleteFromPrefs();
+                  await prefController.deleteFromPrefs();
                   Get.offAllNamed(Routes.LOGIN);
                 },
                 width: Get.width * .7,
@@ -177,7 +195,7 @@ class ProfileView extends GetView<ProfileController> {
     );
   }
 
-  ButtonWidget _saveButton(BuildContext context) {
+  ButtonWidget _saveButton(BuildContext context,GetAccountController accountController) {
     return ButtonWidget(
       text: "Save",
       icon: Icons.library_add_check_rounded,
@@ -185,8 +203,11 @@ class ProfileView extends GetView<ProfileController> {
       onClick: () async {
         if (accountController.account.value.data != null) {
           await getAccountUpdeteController
-              .updateAccount(uploadImageController.uploadImage.value.data,
-                  controller.longObs.value, controller.latObs.value,PrefController().getToken())
+              .updateAccount(
+                  uploadImageController.uploadImage.value.data,
+                  controller.longObs.value,
+                  controller.latObs.value,
+                  PrefController().getToken())
               .whenComplete(() => Get.dialog(AlertDialog(
                     title: Text("Başarılı..!",
                         textAlign: TextAlign.center,

@@ -6,9 +6,10 @@ class GetBlogsController extends GetxController {
   final blogs = GetBlogsModel().obs;
   final isGetBlogsLoading = true.obs;
 
-  @override
+   @override
   void onInit() {
-    print("getblog init=> {$blogs.value}");
+    blogs.value=GetBlogsModel();
+    GetBlogsController().update();
     super.onInit();
   }
 

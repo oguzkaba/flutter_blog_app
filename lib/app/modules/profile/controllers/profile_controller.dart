@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_blog_app/app/data/remote/controller/get_account_controller.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -13,15 +14,14 @@ class ProfileController extends GetxController {
   //GoogleMap
   final isLoadingFinish = true.obs;
   final isRequiredPermission = false.obs;
-  final List<Marker> markers = <Marker>[].obs;
-  final updateLatLng = [].obs;
+  final markers = <Marker>{};
   final dragMarkerPosition = false.obs;
   final latObs = 0.0.obs;
   final longObs = 0.0.obs;
 
   Position? currentLocation;
   CameraPosition? currentLatLng;
-  late GoogleMapController mapController;
+  GoogleMapController? mapController;
 
   @override
   void onInit() {
@@ -37,7 +37,7 @@ class ProfileController extends GetxController {
     return await Geolocator.getCurrentPosition(
             desiredAccuracy: LocationAccuracy.high)
         .catchError((e) {
-          print(e);
+      print(e);
     });
   }
 
@@ -48,39 +48,17 @@ class ProfileController extends GetxController {
         isLoadingFinish.value = false;
       } else {
         currentLocation = pos;
-
-        //Obs
         latObs.value = pos.latitude;
         longObs.value = pos.longitude;
-
-        markers.add(Marker(
-            draggable: true,
-            onDragEnd: ((newLatLng) {
-              updateLatLng.clear();
-              updateLatLng.add(newLatLng.latitude);
-              updateLatLng.add(newLatLng.longitude);
-              dragMarkerPosition.value = true;
-            }),
-            markerId: MarkerId('Current Location'),
-            position:
-                LatLng(currentLocation!.latitude, currentLocation!.longitude),
-            infoWindow: InfoWindow(title: 'Konumunuz')));
-        currentLatLng = CameraPosition(
-          target: LatLng(pos.latitude, pos.longitude),
-          zoom: 14.4746,
-        );
-        mapController
-            .animateCamera(CameraUpdate.newCameraPosition(currentLatLng!));
+        addMark(currentLocation, "Get Location");
         isRequiredPermission.value = false;
         isLoadingFinish.value = true;
       }
     });
   }
 
-  void longPress(newLatLng) {
-    updateLatLng.clear();
-    updateLatLng.add(newLatLng.latitude);
-    updateLatLng.add(newLatLng.longitude);
+  longPress(newLatLng) {
+    addMark(newLatLng, "LongPress Location");
   }
 
   void getterLocations() async {
@@ -96,6 +74,24 @@ class ProfileController extends GetxController {
     });
   }
 
+  addMark(newLatLng, String tag) {
+    dragMarkerPosition.value = false;
+    markers.clear();
+    markers.add(Marker(
+        zIndex: 5,
+        draggable: true,
+        onDragEnd: ((newLatLng) {
+          currentLatLng = CameraPosition(target: newLatLng, zoom: 14.4746);
+          latObs.value = newLatLng.latitude;
+          longObs.value = newLatLng.longitude;
+          dragMarkerPosition.value = true;
+        }),
+        markerId: MarkerId(tag),
+        position: LatLng(newLatLng.latitude, newLatLng.longitude),
+        infoWindow: InfoWindow(title: 'Konumunuz')));
+    dragMarkerPosition.value = true;
+    return markers;
+  }
 
 //İmage Picker
 

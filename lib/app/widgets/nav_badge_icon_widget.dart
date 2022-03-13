@@ -21,6 +21,7 @@ class NavBadgeIcon extends StatelessWidget {
           alignment: Alignment.center,
           children: [
             Icon(iconData),
+            notificationCount==0?SizedBox():
             Positioned(
               top: 0,
               right: 0,

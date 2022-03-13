@@ -11,7 +11,6 @@ class MainView extends GetView<MainController> {
   Widget build(BuildContext context) {
     // ignore: unused_local_variable
     final NetController netContoller = Get.put(NetController());
-    final GetAccountController getAccountController=Get.put(GetAccountController());
 
     if (controller.pController.hasClients) {
       controller.onClose();
@@ -42,8 +41,13 @@ class MainView extends GetView<MainController> {
                   BottomNavigationBarItem(
                       icon: NavBadgeIcon(
                         iconData: Icons.favorite,
-                        notificationCount:
-                            getAccountController.favGetFavBlogList().length,
+                        notificationCount: Get.find<GetAccountController>()
+                                .isGetAccountLoading
+                                .value
+                            ? 0
+                            : Get.find<GetAccountController>()
+                                .favoriteBlog
+                                .length,
                       ),
                       label: "Favorite"),
                   BottomNavigationBarItem(

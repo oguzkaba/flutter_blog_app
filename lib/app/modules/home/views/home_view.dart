@@ -13,18 +13,17 @@ import 'package:get/get.dart';
 import '../controllers/home_controller.dart';
 
 class HomeView extends GetView<HomeController> {
-  final ToogleFavController toogleFavController =
-      Get.put(ToogleFavController());
-  final GetBlogsController getBlogsController = Get.find();
-  final GetBlogsController getBlogsController2 =
-      Get.put(GetBlogsController(), tag: "selectCategory");
-  final GetCategoriesController getCategoriesController = Get.find();
-  final GetAccountController getAccountController = Get.find();
-
   @override
   Widget build(BuildContext context) {
+    final GetAccountController getAccountController = Get.find();
     final ArticleDetailController articleDetailController =
         Get.put(ArticleDetailController());
+    final ToogleFavController toogleFavController =
+        Get.put(ToogleFavController());
+    final GetBlogsController getBlogsController = Get.find();
+    final GetBlogsController getBlogsController2 =
+        Get.put(GetBlogsController(), tag: "selectCategory");
+    final GetCategoriesController getCategoriesController = Get.find();
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -66,7 +65,9 @@ class HomeView extends GetView<HomeController> {
                       getBlogsController2.blogs.value.data != null
                           ? getBlogsController2
                           : getBlogsController,
-                      articleDetailController)),
+                      articleDetailController,
+                      getAccountController,
+                      toogleFavController)),
             ),
           ],
         ),
@@ -75,7 +76,10 @@ class HomeView extends GetView<HomeController> {
   }
 
   GridView _blogArticlesGridView(
-      GetBlogsController gb, ArticleDetailController articleDetailController) {
+      GetBlogsController gb,
+      ArticleDetailController articleDetailController,
+      GetAccountController getAccountController,
+      ToogleFavController toogleFavController) {
     return GridView.count(
         crossAxisCount: 2,
         shrinkWrap: true,
@@ -110,14 +114,18 @@ class HomeView extends GetView<HomeController> {
                               fontWeight: FontWeight.w400,
                               color: myDarkColor))),
                 ),
-                _favButton(index, gb)
+                _favButton(index, gb, getAccountController, toogleFavController)
               ]),
             ),
           );
         }));
   }
 
-  Widget _favButton(int index, GetBlogsController gb) {
+  Widget _favButton(
+      int index,
+      GetBlogsController gb,
+      GetAccountController getAccountController,
+      ToogleFavController toogleFavController) {
     return Positioned(
       top: 0,
       right: 0,
@@ -127,10 +135,12 @@ class HomeView extends GetView<HomeController> {
                 gb.blogs.value.data![index].id!, PrefController().getToken());
           },
           icon: Icon(Icons.favorite,
-              color: getAccountController.favoriteBlog
-                      .contains(gb.blogs.value.data![index].id)
-                  ? myRedColor
-                  : myWhiteColor,
+              color: getAccountController.isGetAccountLoading.value
+                  ? myTrnsprntColor
+                  : getAccountController.favoriteBlog
+                          .contains(gb.blogs.value.data![index].id)
+                      ? myRedColor
+                      : myWhiteColor,
               size: 30)),
     );
   }

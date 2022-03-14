@@ -1,11 +1,9 @@
 // ignore_for_file: must_be_immutable
 
 import 'package:flutter/material.dart';
-import 'package:flutter_blog_app/app/data/local/local_storage_controller.dart';
-import 'package:flutter_blog_app/app/data/remote/controller/api_controller.dart';
+import 'package:flutter_blog_app/app/data/remote/controller/sign_up_controller.dart';
 import 'package:flutter_blog_app/app/global/controller/internet_controller.dart';
 import 'package:flutter_blog_app/app/global/utils/constants.dart';
-import 'package:flutter_blog_app/app/global/utils/responsive.dart';
 import 'package:flutter_blog_app/app/routes/app_pages.dart';
 import 'package:flutter_blog_app/app/widgets/elevated_button_widget.dart';
 import 'package:flutter_blog_app/app/widgets/text_form_field_widget.dart';
@@ -18,12 +16,10 @@ import '../controllers/signup_controller.dart';
 class SignupView extends GetView<SignupController> {
   final GlobalKey<FormState> _formKeyRegister = GlobalKey<FormState>();
   final NetController netContoller = Get.put(NetController());
-  final ApiController apiController = Get.put(ApiController());
-  final PrefController prefController = Get.put(PrefController());
-
+  final SignUpController signUpController = Get.put(SignUpController());
   @override
   Widget build(BuildContext context) {
-    final keyboardOpen = MediaQuery.of(Get.context!).viewInsets.bottom > 0;
+    final keyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
 
     return Scaffold(
         appBar: AppBar(
@@ -32,31 +28,31 @@ class SignupView extends GetView<SignupController> {
         ),
         body: SingleChildScrollView(
           child: Center(
-              child: Column(children: [
-            vPaddingM,
-            _imageRegister(keyboardOpen),
-            vPaddingM,
-            Form(
-                key: _formKeyRegister,
-                child: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-                    child: Obx(() => Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              buildTextFormFieldWidgetEmail(controller),
-                              vPaddingS,
-                              buildTextFormFieldWidgetPass(
-                                  "Password", controller),
-                              vPaddingS,
-                              buildTextFormFieldWidgetPass(
-                                  "Re-Password", controller),
-                              vPaddingM,
-                              _registerButton(context),
-                              vPaddingS,
-                              _loginButton(context),
-                            ]))))
-          ])),
+              child: Obx(() => Column(children: [
+                    vPaddingM,
+                    _imageRegister(keyboardOpen),
+                    vPaddingM,
+                    Form(
+                        key: _formKeyRegister,
+                        child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 5),
+                            child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                  buildTextFormFieldWidgetEmail(controller),
+                                  vPaddingS,
+                                  buildTextFormFieldWidgetPass(
+                                      "Password", controller),
+                                  vPaddingS,
+                                  buildTextFormFieldWidgetPass(
+                                      "Re-Password", controller),
+                                  vPaddingM,
+                                  _registerButton(context),
+                                  vPaddingS,
+                                  _loginButton(context),
+                                ])))
+                  ]))),
         ));
   }
 
@@ -80,7 +76,6 @@ class SignupView extends GetView<SignupController> {
       onClick: () {
         Get.toNamed(Routes.LOGIN);
       },
-      width: Responsive.isMobile(context) ? Get.width * .9 : Get.width * .3,
       height: Get.height * .07,
       color: myWhiteColor,
     );
@@ -93,38 +88,28 @@ class SignupView extends GetView<SignupController> {
       tcolor: myWhiteColor,
       onClick: () async {
         if (_formKeyRegister.currentState!.validate()) {
-          await apiController
+          await signUpController
               .signUp(controller.email.value, controller.password.value,
                   controller.passwordRetry.value)
-              .whenComplete(() async {
-            await apiController.login(
-                controller.email.value, controller.password.value);
-            if (apiController.user.value.hasError == false &&
+              .then((value) {
+            if (signUpController.newUser.value.hasError == false &&
                 controller.password.value == controller.passwordRetry.value &&
-                apiController.isSignUpLoading.value == false) {
-              //apiController.token = apiController.user.data!.token!;
-              prefController.token.value =
-                  apiController.user.value.data!.token!;
-              prefController.isLogin.value = true;
-              prefController.saveToPrefs();
+                signUpController.isSignUpLoading.value == false) {
               Get.offAndToNamed(Routes.MAIN);
             } else {
               Get.snackbar(
                   'Warning..!',
-                  apiController.user.value.validationErrors!.isEmpty
-                      ? "${apiController.user.value.message}."
-                      : "${apiController.user.value.validationErrors!.first["Value"] ?? ""}. ${apiController.user.value.message}.",
+                  signUpController.newUser.value.validationErrors!.isEmpty
+                      ? "${signUpController.newUser.value.message}."
+                      : "${signUpController.newUser.value.validationErrors!.first["Value"] ?? ""}. ${signUpController.newUser.value.message}.",
                   backgroundColor: myRedColor,
                   colorText: myWhiteColor);
             }
           });
         }
       },
-      width: Responsive.isMobile(context) ? Get.width * .9 : Get.width * .3,
       height: Get.height * .07,
       color: myDarkColor,
-      // onClick: _loginButtonPress(
-      //     dvc, lc, apic, sc, _isButtonDisabled),
     );
   }
 }

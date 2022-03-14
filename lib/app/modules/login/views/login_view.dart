@@ -24,7 +24,7 @@ class LoginView extends GetView<LoginController> {
 
   @override
   Widget build(BuildContext context) {
-    final keyboardOpen = MediaQuery.of(Get.context!).viewInsets.bottom > 0;
+    final keyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
 
     return Scaffold(
         appBar: AppBar(
@@ -59,7 +59,7 @@ class LoginView extends GetView<LoginController> {
 
   Visibility _imageLogin(bool keyboardOpen) {
     return Visibility(
-      visible: !keyboardOpen,
+      visible: !keyboardOpen && GetPlatform.isMobile,
       child: SvgPicture.asset(
         loginIcon,
         color: myDarkColor,
@@ -77,7 +77,6 @@ class LoginView extends GetView<LoginController> {
       onClick: () {
         Get.toNamed(Routes.SIGNUP);
       },
-      width: Responsive.isMobile(context) ? Get.width * .9 : Get.width * .3,
       height: Get.height * .07,
       color: myWhiteColor,
     );
@@ -100,11 +99,7 @@ class LoginView extends GetView<LoginController> {
                   } else {
                     Get.snackbar(
                         'Warning..!',
-                        loginController
-                                .user
-                                .value
-                                .validationErrors!
-                                .isEmpty
+                        loginController.user.value.validationErrors!.isEmpty
                             ? "${loginController.user.value.message}."
                             : "${loginController.user.value.validationErrors!.first["Value"] ?? ""}. ${loginController.user.value.message}.",
                         backgroundColor: myRedColor,
@@ -114,7 +109,6 @@ class LoginView extends GetView<LoginController> {
               }
             }
           : () {},
-      width: Responsive.isMobile(context) ? Get.width * .9 : Get.width * .3,
       height: Get.height * .07,
       color: myDarkColor,
     );

@@ -28,8 +28,7 @@ class ProfileView extends GetView<ProfileController> {
 
   @override
   Widget build(BuildContext context) {
-      final GetAccountController accountController =
-      Get.find();
+    final GetAccountController accountController = Get.find();
     return WillPopScope(
       onWillPop: () async {
         Get.find<MainController>().pageindex(1);
@@ -58,7 +57,7 @@ class ProfileView extends GetView<ProfileController> {
                 ),
                 vPaddingM,
                 Expanded(
-                  child: _buttonColumn(context,accountController),
+                  child: _buttonColumn(context, accountController),
                 )
               ],
             ),
@@ -101,11 +100,12 @@ class ProfileView extends GetView<ProfileController> {
             : Center(child: CircularProgressIndicator()));
   }
 
-  Column _buttonColumn(BuildContext context,GetAccountController accountController) {
+  Column _buttonColumn(
+      BuildContext context, GetAccountController accountController) {
     return Column(children: [
-      _saveButton(context,accountController),
+      _saveButton(context, accountController),
       vPaddingS,
-      _logoutButton(context,accountController),
+      _logoutButton(context, accountController),
     ]);
   }
 
@@ -148,7 +148,8 @@ class ProfileView extends GetView<ProfileController> {
     ]);
   }
 
-  ButtonWidget _logoutButton(BuildContext context,GetAccountController accountController) {
+  ButtonWidget _logoutButton(
+      BuildContext context, GetAccountController accountController) {
     return ButtonWidget(
       text: "Log Out",
       icon: Icons.logout,
@@ -195,7 +196,8 @@ class ProfileView extends GetView<ProfileController> {
     );
   }
 
-  ButtonWidget _saveButton(BuildContext context,GetAccountController accountController) {
+  ButtonWidget _saveButton(
+      BuildContext context, GetAccountController accountController) {
     return ButtonWidget(
       text: "Save",
       icon: Icons.library_add_check_rounded,
@@ -204,7 +206,8 @@ class ProfileView extends GetView<ProfileController> {
         if (accountController.account.value.data != null) {
           await getAccountUpdeteController
               .updateAccount(
-                  uploadImageController.uploadImage.value.data,
+                  uploadImageController.uploadImage.value.data ??
+                      accountController.account.value.data!.image,
                   controller.longObs.value,
                   controller.latObs.value,
                   PrefController().getToken())

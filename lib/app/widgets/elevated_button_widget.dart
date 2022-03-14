@@ -28,7 +28,7 @@ class ButtonWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: height ?? Get.height * .09,
-      width: width ?? Get.width * .3,
+      width: width ?? Get.width * .9,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           elevation: 0,

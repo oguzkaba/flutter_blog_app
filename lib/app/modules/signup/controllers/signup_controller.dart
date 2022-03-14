@@ -31,9 +31,9 @@ class SignupController extends GetxController {
       return 'Please fill password retry';
     } else if (value.length < 6) {
       return 'Password retry must be 6 length character';
-    } else if(value=="not equal"){
+    } else if (value == "not equal") {
       return "Passwords are not equal";
-    }else {
+    } else {
       return null;
     }
   }

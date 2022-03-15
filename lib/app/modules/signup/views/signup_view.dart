@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_blog_app/app/data/remote/controller/sign_up_controller.dart';
-import 'package:flutter_blog_app/app/global/controller/internet_controller.dart';
+import 'package:flutter_blog_app/app/global/controller/network_controller.dart';
 import 'package:flutter_blog_app/app/global/utils/constants.dart';
 import 'package:flutter_blog_app/app/routes/app_pages.dart';
 import 'package:flutter_blog_app/app/widgets/elevated_button_widget.dart';
@@ -15,7 +15,7 @@ import '../controllers/signup_controller.dart';
 
 class SignupView extends GetView<SignupController> {
   final GlobalKey<FormState> _formKeyRegister = GlobalKey<FormState>();
-  final NetController netContoller = Get.put(NetController());
+  final NetworkController netContoller = Get.put(NetworkController());
   final SignUpController signUpController = Get.put(SignUpController());
   @override
   Widget build(BuildContext context) {
@@ -48,6 +48,11 @@ class SignupView extends GetView<SignupController> {
                                   buildTextFormFieldWidgetPass(
                                       "Re-Password", controller),
                                   vPaddingM,
+                                  Visibility(
+                                      visible: !netContoller.isOnline,
+                                      child: Text("No internet connection..!",
+                                          style: TextStyle(color: myRedColor))),
+                                  vPaddingS,
                                   _registerButton(context),
                                   vPaddingS,
                                   _loginButton(context),
@@ -86,28 +91,31 @@ class SignupView extends GetView<SignupController> {
       text: "Register",
       icon: Icons.person_add_rounded,
       tcolor: myWhiteColor,
-      onClick: () async {
-        if (_formKeyRegister.currentState!.validate()) {
-          await signUpController
-              .signUp(controller.email.value, controller.password.value,
-                  controller.passwordRetry.value)
-              .then((value) {
-            if (signUpController.newUser.value.hasError == false &&
-                controller.password.value == controller.passwordRetry.value &&
-                signUpController.isSignUpLoading.value == false) {
-              Get.offAndToNamed(Routes.MAIN);
-            } else {
-              Get.snackbar(
-                  'Warning..!',
-                  signUpController.newUser.value.validationErrors!.isEmpty
-                      ? "${signUpController.newUser.value.message}."
-                      : "${signUpController.newUser.value.validationErrors!.first["Value"] ?? ""}. ${signUpController.newUser.value.message}.",
-                  backgroundColor: myRedColor,
-                  colorText: myWhiteColor);
+      onClick: netContoller.isOnline
+          ? () async {
+              if (_formKeyRegister.currentState!.validate()) {
+                await signUpController
+                    .signUp(controller.email.value, controller.password.value,
+                        controller.passwordRetry.value)
+                    .then((value) {
+                  if (signUpController.newUser.value.hasError == false &&
+                      controller.password.value ==
+                          controller.passwordRetry.value &&
+                      signUpController.isSignUpLoading.value == false) {
+                    Get.offAndToNamed(Routes.MAIN);
+                  } else {
+                    Get.snackbar(
+                        'Warning..!',
+                        signUpController.newUser.value.validationErrors!.isEmpty
+                            ? "${signUpController.newUser.value.message}."
+                            : "${signUpController.newUser.value.validationErrors!.first["Value"] ?? ""}. ${signUpController.newUser.value.message}.",
+                        backgroundColor: myRedColor,
+                        colorText: myWhiteColor);
+                  }
+                });
+              }
             }
-          });
-        }
-      },
+          : () {},
       height: Get.height * .07,
       color: myDarkColor,
     );

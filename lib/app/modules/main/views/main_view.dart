@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_blog_app/app/data/remote/controller/get_account_controller.dart';
-import 'package:flutter_blog_app/app/global/controller/internet_controller.dart';
+import 'package:flutter_blog_app/app/global/controller/network_controller.dart';
 import 'package:flutter_blog_app/app/global/utils/constants.dart';
 import 'package:flutter_blog_app/app/widgets/nav_badge_icon_widget.dart';
 import 'package:get/get.dart';
@@ -10,7 +10,7 @@ class MainView extends GetView<MainController> {
   @override
   Widget build(BuildContext context) {
     // ignore: unused_local_variable
-    final NetController netContoller = Get.put(NetController());
+    final NetworkController netContoller = Get.put(NetworkController());
 
     if (controller.pController.hasClients) {
       controller.onClose();

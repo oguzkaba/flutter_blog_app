@@ -3,9 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_blog_app/app/data/local/local_storage_controller.dart';
 import 'package:flutter_blog_app/app/data/remote/controller/user_login_controller.dart';
-import 'package:flutter_blog_app/app/global/controller/internet_controller.dart';
+import 'package:flutter_blog_app/app/global/controller/network_controller.dart';
 import 'package:flutter_blog_app/app/global/utils/constants.dart';
-import 'package:flutter_blog_app/app/global/utils/responsive.dart';
 import 'package:flutter_blog_app/app/routes/app_pages.dart';
 import 'package:flutter_blog_app/app/widgets/elevated_button_widget.dart';
 import 'package:flutter_blog_app/app/widgets/text_form_field_widget.dart';
@@ -18,7 +17,7 @@ import '../controllers/login_controller.dart';
 class LoginView extends GetView<LoginController> {
   GlobalKey<FormState> _formKeyLogin =
       GlobalKey<FormState>(debugLabel: "login");
-  final NetController netContoller = Get.put(NetController());
+  final NetworkController netContoller = Get.put(NetworkController());
   final PrefController prefController = Get.put(PrefController());
   final UserLoginController loginController = Get.put(UserLoginController());
 
@@ -49,6 +48,11 @@ class LoginView extends GetView<LoginController> {
                                   vPaddingS,
                                   buildTextFormFieldWidgetPass(controller),
                                   vPaddingM,
+                                  Visibility(
+                                      visible: !netContoller.isOnline,
+                                      child: Text("No internet connection..!",
+                                          style: TextStyle(color: myRedColor))),
+                                  vPaddingS,
                                   _loginButton(context),
                                   vPaddingS,
                                   _registerButton(context),

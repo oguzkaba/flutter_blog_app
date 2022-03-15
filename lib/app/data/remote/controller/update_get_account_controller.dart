@@ -6,17 +6,16 @@ import 'package:get/get.dart';
 class UpdeteGetAccountController extends GetxController {
   final upAccount = AccountUpdateModel().obs;
   final isGetAccountLoading = true.obs; //
-  final GetAccountController accountController=Get.find();
-   //UpdateAccount method
-  Future<void> updateAccount(img, lng, ltd,token) async {
+  final GetAccountController accountController = Get.find();
+  //UpdateAccount method
+  Future<void> updateAccount(img, lng, ltd, token) async {
     try {
       isGetAccountLoading(true);
       upAccount.value = await RemoteServices.updateAccounts(
-          img, lng.toString(), ltd.toString(),token);
+          img, lng.toString(), ltd.toString(), token);
     } finally {
       await accountController.getAccount(token);
       isGetAccountLoading(false);
     }
   }
-
 }

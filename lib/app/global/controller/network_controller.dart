@@ -7,7 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_blog_app/app/global/utils/constants.dart';
 import 'package:get/get.dart';
 
-class NetController extends GetxController {
+class NetworkController extends GetxController {
   final Connectivity _connectivity = Connectivity();
   final _isOnline = false.obs;
 
@@ -70,7 +70,7 @@ class NetController extends GetxController {
 int d = 0;
 netErrorSnackBar() {
   d += 1;
-  if (NetController().isOnline == false && d == 1) {
+  if (NetworkController().isOnline == false && d == 1) {
     Get.snackbar(
       "WARNING..!",
       'You are not connected to the internet.\n Make sure Wi-Fi is or Mobile Data on, Airplane Mode is Off and try again.',

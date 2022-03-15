@@ -30,8 +30,9 @@ class MainController extends GetxController {
     await blogsController.getBlogs("", token);
     await categoriesController.getCategories(token);
     await accountController.getAccount(token);
-    if (accountController.account.value.data!.location == null) {
-      updateAccountController.updateAccount(
+    if (accountController.account.value.data!.location == null &&
+        profileController.isLoadingFinish.value) {
+      await updateAccountController.updateAccount(
           accountController.account.value.data!.image,
           profileController.longObs,
           profileController.latObs,

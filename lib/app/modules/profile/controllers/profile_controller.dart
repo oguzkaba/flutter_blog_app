@@ -12,7 +12,7 @@ import 'package:image_picker/image_picker.dart';
 
 class ProfileController extends GetxController {
   //GoogleMap
-  final isLoadingFinish = true.obs;
+  final isLoadingFinish = false.obs;
   final isRequiredPermission = false.obs;
   final markers = <Marker>{};
   final dragMarkerPosition = false.obs;
@@ -42,7 +42,7 @@ class ProfileController extends GetxController {
   }
 
   void permissionOK() async {
-    getLocation().then((pos) {
+    await getLocation().then((pos) {
       if (pos == null) {
         isRequiredPermission.value = true;
         isLoadingFinish.value = false;

@@ -92,7 +92,7 @@ class ProfileView extends GetView<ProfileController> {
                                 .account.value.data!.location["Latitude"]),
                             double.parse(accountController
                                 .account.value.data!.location["Longtitude"])),
-                        "Account Location")
+                        )
                     : Set<Marker>.of(controller.markers),
                 initialCameraPosition: CameraPosition(
                     zoom: 14,

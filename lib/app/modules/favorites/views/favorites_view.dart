@@ -12,11 +12,12 @@ import 'package:get/get.dart';
 import '../controllers/favorites_controller.dart';
 
 class FavoritesView extends GetView<FavoritesController> {
-  final ToogleFavController favController = Get.put(ToogleFavController());
-  final ArticleDetailController artDetController =
-      Get.put(ArticleDetailController());
+
   @override
   Widget build(BuildContext context) {
+      final ToogleFavController toogleFavController = Get.put(ToogleFavController());
+  final ArticleDetailController articleDetailController =
+      Get.find();
     return WillPopScope(
       onWillPop: () async {
         Get.find<MainController>().pageindex(1);
@@ -38,12 +39,12 @@ class FavoritesView extends GetView<FavoritesController> {
                     style: TextStyle(fontSize: 30, color: myDarkColor)))
             : Get.find<GetAccountController>().isGetAccountLoading.value
                 ? Center(child: CircularProgressIndicator(color: myDarkColor))
-                : _blogArticlesGridView()),
+                : _blogArticlesGridView(articleDetailController,toogleFavController)),
       ),
     );
   }
 
-  GridView _blogArticlesGridView() {
+  GridView _blogArticlesGridView(ArticleDetailController articleDetailController,ToogleFavController toogleFavController) {
     var favBlogIds = Get.find<GetAccountController>().favoriteBlog;
     var articles = Get.find<GetBlogsController>().blogs.value.data!;
 
@@ -70,7 +71,7 @@ class FavoritesView extends GetView<FavoritesController> {
             Get.find<GetAccountController>().favoriteBlog.length, (index) {
           return GestureDetector(
             onTap: () {
-              artDetController.selectedArticle.value =
+              articleDetailController.selectedArticle.value =
                   favGetFavBlogList()[index];
               Get.find<MainController>().pController.jumpToPage(3);
             },
@@ -103,7 +104,7 @@ class FavoritesView extends GetView<FavoritesController> {
                     right: 0,
                     child: IconButton(
                         onPressed: () async {
-                          await favController.toggleFav(
+                          await toogleFavController.toggleFav(
                               favGetFavBlogList()[index].id,
                               PrefController().getToken());
                         },

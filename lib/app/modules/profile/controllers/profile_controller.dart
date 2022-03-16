@@ -23,58 +23,7 @@ class ProfileController extends GetxController {
   CameraPosition? currentLatLng;
   GoogleMapController? mapController;
 
-  @override
-  void onInit() {
-    getterLocations();
-    super.onInit();
-  }
-
-  Future<Position?> getLocation() async {
-    var perm = await Geolocator.checkPermission();
-    if (perm == LocationPermission.denied) {
-      return null;
-    }
-    return await Geolocator.getCurrentPosition(
-            desiredAccuracy: LocationAccuracy.high)
-        .catchError((e) {
-      print(e);
-    });
-  }
-
-  void permissionOK() async {
-    await getLocation().then((pos) {
-      if (pos == null) {
-        isRequiredPermission.value = true;
-        isLoadingFinish.value = false;
-      } else {
-        currentLocation = pos;
-        latObs.value = pos.latitude;
-        longObs.value = pos.longitude;
-        addMark(currentLocation, "Get Location");
-        isRequiredPermission.value = false;
-        isLoadingFinish.value = true;
-      }
-    });
-  }
-
-  longPress(newLatLng) {
-    addMark(newLatLng, "LongPress Location");
-  }
-
-  void getterLocations() async {
-    await Geolocator.requestPermission().then((request) {
-      if (GetPlatform.isIOS || GetPlatform.isAndroid) {
-        if (request == LocationPermission.denied ||
-            request == LocationPermission.deniedForever) {
-          return;
-        } else {
-          permissionOK();
-        }
-      }
-    });
-  }
-
-  addMark(newLatLng, String tag) {
+  addMark(newLatLng) {
     dragMarkerPosition.value = false;
     markers.clear();
     markers.add(Marker(
@@ -86,7 +35,7 @@ class ProfileController extends GetxController {
           longObs.value = newLatLng.longitude;
           dragMarkerPosition.value = true;
         }),
-        markerId: MarkerId(tag),
+        markerId: MarkerId("Location"),
         position: LatLng(newLatLng.latitude, newLatLng.longitude),
         infoWindow: InfoWindow(title: 'Konumunuz')));
     dragMarkerPosition.value = true;

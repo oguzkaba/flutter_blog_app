@@ -24,6 +24,7 @@ class MainController extends GetxController {
   void onInit() async {
     pController = PageController(initialPage: pIndex.value);
     await _initLoad(PrefController().getToken());
+    await _addStartLocation(PrefController().getToken());
     super.onInit();
   }
 
@@ -31,16 +32,33 @@ class MainController extends GetxController {
     await blogsController.getBlogs("", token);
     await categoriesController.getCategories(token);
     await accountController.getAccount(token);
+  }
+
+  _addStartLocation(String token) async {
+    double lat = 0.0;
+    double long = 0.0;
+
+    await Geolocator.requestPermission().then((request) async {
+      if (GetPlatform.isIOS || GetPlatform.isAndroid) {
+        if (request == LocationPermission.denied ||
+            request == LocationPermission.deniedForever) {
+          return;
+        } else {
+          await Geolocator.getCurrentPosition(
+                  desiredAccuracy: LocationAccuracy.high)
+              .then((pos) async {
+            lat = pos.latitude;
+            long = pos.longitude;
+          });
+        }
+      }
+    });
+
     if (accountController.account.value.data!.location == null) {
-      double lat, long = 0.0;
-      await Geolocator.getCurrentPosition(
-              desiredAccuracy: LocationAccuracy.high)
-          .then((pos) async {
-        lat = pos.latitude;
-        long = pos.longitude;
-        await updateAccountController.updateAccount(
-            accountController.account.value.data!.image, long, lat, token);
-      });
+      await updateAccountController.updateAccount(
+          accountController.account.value.data!.image, long, lat, token);
+      profileController.isLoadingFinish.value = true;
+      profileController.dragMarkerPosition.value = true;
     }
   }
 

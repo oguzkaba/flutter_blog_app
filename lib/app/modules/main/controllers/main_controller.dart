@@ -5,6 +5,7 @@ import 'package:flutter_blog_app/app/data/remote/controller/get_blogs_controller
 import 'package:flutter_blog_app/app/data/remote/controller/get_categories_controller.dart';
 import 'package:flutter_blog_app/app/data/remote/controller/update_get_account_controller.dart';
 import 'package:flutter_blog_app/app/modules/profile/controllers/profile_controller.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 
 class MainController extends GetxController {
@@ -30,20 +31,16 @@ class MainController extends GetxController {
     await blogsController.getBlogs("", token);
     await categoriesController.getCategories(token);
     await accountController.getAccount(token);
-    if (accountController.account.value.data!.location == null &&
-        profileController.isLoadingFinish.value) {
-      await updateAccountController.updateAccount(
-          accountController.account.value.data!.image,
-          profileController.longObs,
-          profileController.latObs,
-          token);
-    } else {
-      profileController.getterLocations();
-      await updateAccountController.updateAccount(
-          accountController.account.value.data!.image,
-          profileController.longObs,
-          profileController.latObs,
-          token);
+    if (accountController.account.value.data!.location == null) {
+      double lat, long = 0.0;
+      await Geolocator.getCurrentPosition(
+              desiredAccuracy: LocationAccuracy.high)
+          .then((pos) async {
+        lat = pos.latitude;
+        long = pos.longitude;
+        await updateAccountController.updateAccount(
+            accountController.account.value.data!.image, long, lat, token);
+      });
     }
   }
 

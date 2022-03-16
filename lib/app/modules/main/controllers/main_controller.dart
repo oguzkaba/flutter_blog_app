@@ -37,6 +37,13 @@ class MainController extends GetxController {
           profileController.longObs,
           profileController.latObs,
           token);
+    } else {
+      profileController.getterLocations();
+      await updateAccountController.updateAccount(
+          accountController.account.value.data!.image,
+          profileController.longObs,
+          profileController.latObs,
+          token);
     }
   }
 

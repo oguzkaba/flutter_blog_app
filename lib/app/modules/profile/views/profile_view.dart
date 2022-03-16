@@ -85,9 +85,7 @@ class ProfileView extends GetView<ProfileController> {
                     controller.currentLatLng = position),
                 markers: controller.isLoadingFinish.value &&
                         accountController.isGetAccountLoading.value == false &&
-                        accountController
-                                .account.value.data!.location["Latitude"] !=
-                            null
+                        accountController.account.value.data!.location != null
                     ? controller.addMark(
                         LatLng(
                             double.parse(accountController

@@ -62,7 +62,7 @@ class ProfileController extends GetxController {
   }
 
   void getterLocations() async {
-    Geolocator.requestPermission().then((request) {
+    await Geolocator.requestPermission().then((request) {
       if (GetPlatform.isIOS || GetPlatform.isAndroid) {
         if (request == LocationPermission.denied ||
             request == LocationPermission.deniedForever) {

@@ -83,7 +83,11 @@ class ProfileView extends GetView<ProfileController> {
                     controller.mapController = mapController,
                 onCameraMove: ((position) =>
                     controller.currentLatLng = position),
-                markers: accountController.isGetAccountLoading.value == false && accountController.account.value.data!.location["Latitude"] != null
+                markers: controller.isLoadingFinish.value &&
+                        accountController.isGetAccountLoading.value == false &&
+                        accountController
+                                .account.value.data!.location["Latitude"] !=
+                            null
                     ? controller.addMark(
                         LatLng(
                             double.parse(accountController
@@ -92,11 +96,14 @@ class ProfileView extends GetView<ProfileController> {
                                 .account.value.data!.location["Longtitude"])),
                         "Account Location")
                     : Set<Marker>.of(controller.markers),
-                initialCameraPosition: accountController.account.value.data!.location["Latitude"] == null
-                    ? controller.currentLatLng!
-                    : CameraPosition(
-                        zoom: 14,
-                        target: LatLng(double.parse(accountController.account.value.data!.location["Latitude"]), double.parse(accountController.account.value.data!.location["Longtitude"]))))
+                initialCameraPosition: CameraPosition(
+                    zoom: 14,
+                    target: LatLng(
+                      double.parse(accountController
+                          .account.value.data!.location["Latitude"]),
+                      double.parse(accountController
+                          .account.value.data!.location["Longtitude"]),
+                    )))
             : Center(child: CircularProgressIndicator()));
   }
 
